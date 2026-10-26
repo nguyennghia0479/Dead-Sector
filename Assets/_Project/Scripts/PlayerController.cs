@@ -4,7 +4,7 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Speed Settings")]
     [SerializeField] private float walkSpeed = 3f;
-    [SerializeField] private float sprintSpeed = 8f;
+    [SerializeField] private float sprintSpeed = 6f;
     [SerializeField] private float crouchSpeed = 1.5f;
     [SerializeField] private float smoothSpeed = 10f;
     private float currentSpeed;
@@ -25,10 +25,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isSprinting;
 
     [Header("References")]
-    [SerializeField] private PlayerCameraLook playerCamLook;
+    [SerializeField] private Camera mainCamera;
+    [SerializeField] private PlayerCamera playerCam;
+    [SerializeField] private HeadBob headBob;
+    [SerializeField] private FullBodyAnimations bodyAnimations;
 
     private CharacterController controller;
     private GameInput gameInput;
+    private Vector2 moveInput;
 
     public bool IsMoving { get; private set; }
     
@@ -44,7 +48,8 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        playerCamLook.Initialized();
+        playerCam.Initialized();
+        headBob.Initialized(mainCamera.transform.localPosition);
     }
 
     private void OnEnable()
@@ -68,8 +73,10 @@ public class PlayerController : MonoBehaviour
         isGrounded = controller.isGrounded;
         HandleVerticalVelocity();
         HandleFinalMove();
-        HandleLook();
+        HandleRotation();
         HandleCrouch();
+        HandleHeadBob();
+        HandleFullBodyAnimation();
     }
 
     private void HandleVerticalVelocity()
@@ -85,7 +92,7 @@ public class PlayerController : MonoBehaviour
         float targetSpeed = isCrouching ? crouchSpeed : isSprinting ? sprintSpeed : walkSpeed;
         currentSpeed = Mathf.Lerp(currentSpeed, targetSpeed, smoothSpeed * Time.deltaTime);
 
-        Vector2 moveInput = gameInput.GetMoveInputNormalized();
+        moveInput = gameInput.GetMoveInputNormalized();
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         Vector3 finalMove = currentSpeed * movement + playerVelocity.y * Vector3.up;
 
@@ -93,15 +100,25 @@ public class PlayerController : MonoBehaviour
         controller.Move(finalMove * Time.deltaTime);
     }
 
-    private void HandleLook()
+    private void HandleRotation()
     {
-        playerCamLook.HandleLook(transform, gameInput);
+        playerCam.HandleRotation(transform, mainCamera.transform, gameInput);
     }
 
     private void HandleCrouch()
     {
         float targetHeight = isCrouching ? crouchHeight : originalHeight;
         controller.height = Mathf.Lerp(controller.height, targetHeight, smoothSpeed * Time.deltaTime);
+    }
+
+    private void HandleHeadBob()
+    {
+        headBob.HandleHeadBob(mainCamera.transform, IsMoving, isGrounded, isSprinting);
+    }
+
+    private void HandleFullBodyAnimation()
+    {
+        bodyAnimations.HandleAnimations(moveInput, isCrouching);
     }
 
     private void HandleJumpPressed()

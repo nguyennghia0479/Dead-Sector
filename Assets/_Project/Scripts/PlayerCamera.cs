@@ -1,13 +1,12 @@
 using UnityEngine;
 
 [System.Serializable]
-public class PlayerCameraLook
+public class PlayerCamera
 {
     [Header("Mouse Settings")]
     [SerializeField] private float mouseXSensitivity = 20f;
     [SerializeField] private float mouseYSensitivity = 20f;
     [SerializeField] private float angleClamp = 60f;
-    [SerializeField] private Transform playerCam;
 
     private float xRotation;
 
@@ -17,7 +16,7 @@ public class PlayerCameraLook
         Cursor.visible = false;
     }
 
-    public void HandleLook(Transform playerTransform, GameInput gameInput)
+    public void HandleRotation(Transform playerTransform, Transform playerCamera, GameInput gameInput)
     {
         Vector2 lookInput = gameInput.GetLookInput();
         float mouseX = lookInput.x * mouseXSensitivity * Time.deltaTime;
@@ -26,7 +25,7 @@ public class PlayerCameraLook
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -angleClamp, angleClamp);
 
-        playerCam.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        playerCamera.localRotation = Quaternion.Euler(xRotation, 0, 0);
         playerTransform.Rotate(Vector3.up * mouseX);
     }
 }
