@@ -31,6 +31,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyAnimations bodyAnimations;
 
     private CharacterController controller;
+    private GunController gunActivated;
     private GameInput gameInput;
     private Vector2 moveInput;
 
@@ -39,6 +40,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        gunActivated =GetComponentInChildren<GunController>();
         gameInput = GetComponent<GameInput>();
 
         currentSpeed = walkSpeed;
@@ -58,6 +60,9 @@ public class PlayerController : MonoBehaviour
         gameInput.OnCrouchPressed += HandleCrouchPressed;
         gameInput.OnSprintPressed += HandleSprintPressed;
         gameInput.OnSprintReleased += HandleSprintRelease;
+        gameInput.OnShootPressed += HandleShootPressed;
+        gameInput.OnShootReleased += HandleShootReleased;
+        gameInput.OnReloadPressed += HandleReloadPressed;
     }
 
     private void OnDisable()
@@ -66,6 +71,9 @@ public class PlayerController : MonoBehaviour
         gameInput.OnCrouchPressed -= HandleCrouchPressed;
         gameInput.OnSprintPressed -= HandleSprintPressed;
         gameInput.OnSprintReleased -= HandleSprintRelease;
+        gameInput.OnShootPressed -= HandleShootPressed;
+        gameInput.OnShootReleased -= HandleShootReleased;
+        gameInput.OnReloadPressed -= HandleReloadPressed;
     }
 
     private void Update()
@@ -145,5 +153,20 @@ public class PlayerController : MonoBehaviour
     private void HandleSprintRelease()
     {
         isSprinting = false;
+    }
+
+    private void HandleShootPressed()
+    {
+        gunActivated.GunShooting(true);
+    }
+
+    private void HandleShootReleased()
+    {
+        gunActivated.GunShooting(false);
+    }
+
+    private void HandleReloadPressed()
+    {
+        gunActivated.HandleReload();
     }
 }
