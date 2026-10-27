@@ -34,8 +34,11 @@ public class PlayerController : MonoBehaviour
     private GunController gunActivated;
     private GameInput gameInput;
     private Vector2 moveInput;
+    private Vector3 cameraRecoilRotation;
 
+    public bool IsSprinting => isSprinting;
     public bool IsMoving { get; private set; }
+    public GameInput GameInput => gameInput;
     
     private void Awake()
     {
@@ -110,8 +113,10 @@ public class PlayerController : MonoBehaviour
 
     private void HandleRotation()
     {
-        playerCam.HandleRotation(transform, mainCamera.transform, gameInput);
+        playerCam.HandleRotation(transform, mainCamera.transform, gameInput, cameraRecoilRotation);
     }
+
+    public void UpdateCameraRecoilRotation(Vector3 cameraRecoilRotation) => this.cameraRecoilRotation = cameraRecoilRotation;
 
     private void HandleCrouch()
     {
@@ -126,7 +131,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleFullBodyAnimation()
     {
-        bodyAnimations.HandleAnimations(moveInput, isCrouching);
+        bodyAnimations.HandleAnimations(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
     }
 
     private void HandleJumpPressed()

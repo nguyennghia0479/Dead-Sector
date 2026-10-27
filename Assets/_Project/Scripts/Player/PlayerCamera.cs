@@ -16,16 +16,16 @@ public class PlayerCamera
         Cursor.visible = false;
     }
 
-    public void HandleRotation(Transform playerTransform, Transform playerCamera, GameInput gameInput)
+    public void HandleRotation(Transform playerTransform, Transform playerCamera, GameInput gameInput, Vector3 cameraRecoilRotation)
     {
-        Vector2 lookInput = gameInput.GetLookInput();
-        float mouseX = lookInput.x * mouseXSensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * mouseYSensitivity * Time.deltaTime;
+        Vector2 mouseInput = gameInput.GetMouseInput();
+        float mouseX = mouseInput.x * mouseXSensitivity * Time.deltaTime;
+        float mouseY = mouseInput.y * mouseYSensitivity * Time.deltaTime;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -angleClamp, angleClamp);
 
-        playerCamera.localRotation = Quaternion.Euler(xRotation, 0, 0);
+        playerCamera.localRotation = Quaternion.Euler(xRotation + cameraRecoilRotation.x, cameraRecoilRotation.y, cameraRecoilRotation.z);
         playerTransform.Rotate(Vector3.up * mouseX);
     }
 }

@@ -47,7 +47,7 @@ public class GameInput : MonoBehaviour
 
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
 
-    public Vector2 GetLookInput() => player.Look.ReadValue<Vector2>();
+    public Vector2 GetMouseInput() => player.Look.ReadValue<Vector2>();
 
     private void OnJumpPerformed(InputAction.CallbackContext obj) => OnJumpPressed?.Invoke();
     private void OnCrouchPerformed(InputAction.CallbackContext obj) => OnCrouchPressed?.Invoke();
