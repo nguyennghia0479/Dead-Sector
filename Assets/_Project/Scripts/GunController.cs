@@ -1,6 +1,4 @@
-using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class GunController : MonoBehaviour
 {
@@ -8,6 +6,7 @@ public class GunController : MonoBehaviour
     [SerializeField] private float weaponRange = 100f;
     [SerializeField] private float fireRate;
     [SerializeField] private LayerMask ignoreLayer;
+    [SerializeField] private MuzzleFlashEffect muzzleFlash;
     private float nextFireTimer;
 
     [Header("Ammo Settings")]
@@ -16,14 +15,17 @@ public class GunController : MonoBehaviour
     [SerializeField] private int currentAmmos;
     [SerializeField] private bool isReloading;
 
-    [Header("Gun References")]
+    [Header("Gun Attributes")]
     [SerializeField] private GunAnimations gunAnimations;
+    [SerializeField] private CameraRecoil cameraRecoil;
+    [SerializeField] private GunSway gunSway;
 
-    [Header("References")]
-    [SerializeField] private Camera mainCamera;
-
+    private PlayerController playerController;
+    private GameInput gameInput;
+    private Camera mainCamera;
     private bool gunActivated;
     private bool isShooting;
+    private bool isAiming;
 
     private void Awake()
     {
@@ -32,29 +34,43 @@ public class GunController : MonoBehaviour
 
     private void Start()
     {
+        playerController = GetComponentInParent<PlayerController>();
+        gameInput = playerController.GameInput;
+        mainCamera = Camera.main;
         gunAnimations.Initialized();
+        gunSway.Initialized(gameInput, transform.localPosition);
     }
 
     private void Update()
     {
-        nextFireTimer += Time.deltaTime;
-        if (isShooting && !isReloading && nextFireTimer >= fireRate)
-        {
-            if (currentAmmos > 0)
-            {
-                nextFireTimer = 0f;
-                HandleShoot();
-            }
-            else
-                HandleReload();
-        }
+        HandleShoot();
+        HandleUpdateRecoil();
+        HandleGunSway();
     }
 
     private void HandleShoot()
     {
+        nextFireTimer += Time.deltaTime;
+        if (!isShooting || isReloading || nextFireTimer < fireRate)
+            return;
+
+        if (currentAmmos > 0)
+        {
+            nextFireTimer = 0f;
+            Shoot();
+        }
+        else
+            HandleReload();
+    }
+
+    private void Shoot()
+    {
         Debug.DrawRay(mainCamera.transform.position, mainCamera.transform.forward * weaponRange, Color.red);
 
         currentAmmos--;
+        muzzleFlash.Play();
+        cameraRecoil.ApplyRecoil(isAiming);
+
         Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, weaponRange, ~ignoreLayer))
         {
@@ -73,11 +89,22 @@ public class GunController : MonoBehaviour
 
     public void ReloadFinished()
     {
-        int ammosToReload = maxAmmo - currentAmmos;
-        currentAmmos = totalAmmos > ammosToReload ? currentAmmos + ammosToReload : currentAmmos + totalAmmos;
+        int ammosNeeded = maxAmmo - currentAmmos;
+        int ammosToReload = Mathf.Min(ammosNeeded, totalAmmos);
+
+        currentAmmos += ammosToReload;
         totalAmmos -= ammosToReload;
-        totalAmmos = Mathf.Clamp(totalAmmos, 0, totalAmmos);
         isReloading = false;
+    }
+
+    private void HandleUpdateRecoil()
+    {
+        playerController.UpdateCameraRecoilRotation(cameraRecoil.GetCurrentRecoil());
+    }
+
+    private void HandleGunSway()
+    {
+        gunSway.HandleSway(transform, playerController, isShooting, isAiming);
     }
 
     public void GunActivated(bool activeStatus) => gunActivated = activeStatus;
