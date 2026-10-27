@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     private GameInput gameInput;
     private Vector2 moveInput;
     private Vector3 cameraRecoilRotation;
+    private bool isAiming;
 
     public bool IsSprinting => isSprinting;
     public bool IsMoving { get; private set; }
@@ -66,6 +67,7 @@ public class PlayerController : MonoBehaviour
         gameInput.OnShootPressed += HandleShootPressed;
         gameInput.OnShootReleased += HandleShootReleased;
         gameInput.OnReloadPressed += HandleReloadPressed;
+        gameInput.OnAimPressed += HandleAimPressed;
     }
 
     private void OnDisable()
@@ -77,6 +79,7 @@ public class PlayerController : MonoBehaviour
         gameInput.OnShootPressed -= HandleShootPressed;
         gameInput.OnShootReleased -= HandleShootReleased;
         gameInput.OnReloadPressed -= HandleReloadPressed;
+        gameInput.OnAimPressed -= HandleAimPressed;
     }
 
     private void Update()
@@ -173,5 +176,11 @@ public class PlayerController : MonoBehaviour
     private void HandleReloadPressed()
     {
         gunActivated.HandleReload();
+    }
+
+    private void HandleAimPressed()
+    {
+        isAiming = !isAiming;
+        gunActivated.GunAiming(isAiming);
     }
 }
