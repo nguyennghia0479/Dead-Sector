@@ -11,6 +11,7 @@ public class GameInput : MonoBehaviour
     public event Action OnShootPressed;
     public event Action OnShootReleased;
     public event Action OnReloadPressed;
+    public event Action OnAimPressed;
 
     private PlayerInputSet inputSet;
     private PlayerInputSet.PlayerActions player;
@@ -31,6 +32,7 @@ public class GameInput : MonoBehaviour
         player.Shoot.performed += OnShootPerformed;
         player.Shoot.canceled += OnShootCanceled;
         player.Reload.performed += OnReloadPerformed;
+        player.Aim.performed += OnAimPerformed;
     }
 
     private void OnDisable()
@@ -43,6 +45,7 @@ public class GameInput : MonoBehaviour
         player.Shoot.performed -= OnShootPerformed;
         player.Shoot.canceled -= OnShootCanceled;
         player.Reload.performed -= OnReloadPerformed;
+        player.Aim.performed -= OnAimPerformed;
     }
 
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
@@ -56,4 +59,5 @@ public class GameInput : MonoBehaviour
     private void OnShootPerformed(InputAction.CallbackContext obj) => OnShootPressed?.Invoke();
     private void OnShootCanceled(InputAction.CallbackContext obj) => OnShootReleased?.Invoke();
     private void OnReloadPerformed(InputAction.CallbackContext obj) => OnReloadPressed?.Invoke();
+    private void OnAimPerformed(InputAction.CallbackContext obj) => OnAimPressed?.Invoke();
 }

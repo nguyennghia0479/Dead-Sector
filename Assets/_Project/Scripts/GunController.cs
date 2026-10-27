@@ -15,10 +15,19 @@ public class GunController : MonoBehaviour
     [SerializeField] private int currentAmmos;
     [SerializeField] private bool isReloading;
 
+    [Header("Audio Settings")]
+    [SerializeField] private AudioSource gunSource;
+    [SerializeField] private AudioClip shootClip;
+    [SerializeField] private AudioClip reloadClip;
+
     [Header("Gun Attributes")]
     [SerializeField] private GunAnimations gunAnimations;
     [SerializeField] private CameraRecoil cameraRecoil;
     [SerializeField] private GunSway gunSway;
+    [SerializeField] private GunRecoil gunRecoil;
+    [SerializeField] private BulletTracer bulletTracer;
+    [SerializeField] private SurfaceHitEffect surfaceHitEffect;
+    [SerializeField] private GunAiming gunAiming;
 
     private PlayerController playerController;
     private GameInput gameInput;
@@ -37,8 +46,12 @@ public class GunController : MonoBehaviour
         playerController = GetComponentInParent<PlayerController>();
         gameInput = playerController.GameInput;
         mainCamera = Camera.main;
+
         gunAnimations.Initialized();
         gunSway.Initialized(gameInput, transform.localPosition);
+        gunRecoil.Initialized(transform.localPosition, transform.localRotation);
+        surfaceHitEffect.Initialized();
+        gunAiming.Initialized(transform.parent.localPosition, transform.parent.localEulerAngles, mainCamera.fieldOfView);
     }
 
     private void Update()
@@ -46,12 +59,14 @@ public class GunController : MonoBehaviour
         HandleShoot();
         HandleUpdateRecoil();
         HandleGunSway();
+        HandleGunRecoil();
+        HandleGunAiming();
     }
 
     private void HandleShoot()
     {
         nextFireTimer += Time.deltaTime;
-        if (!isShooting || isReloading || nextFireTimer < fireRate)
+        if (!gunActivated || !isShooting || isReloading || nextFireTimer < fireRate)
             return;
 
         if (currentAmmos > 0)
@@ -65,26 +80,32 @@ public class GunController : MonoBehaviour
 
     private void Shoot()
     {
-        Debug.DrawRay(mainCamera.transform.position, mainCamera.transform.forward * weaponRange, Color.red);
-
         currentAmmos--;
         muzzleFlash.Play();
         cameraRecoil.ApplyRecoil(isAiming);
+        gunRecoil.ApplyRecoil(isAiming);
+        PlayGunShootSFX();
 
         Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
         if (Physics.Raycast(ray, out RaycastHit hit, weaponRange, ~ignoreLayer))
         {
-            if (hit.collider != null)
-                Debug.Log(hit.collider.gameObject.name);
+            Debug.Log(hit.collider.gameObject.name);
+            bulletTracer.ApplyTracer(muzzleFlash.transform.position, hit.point);
+            surfaceHitEffect.ApplyHitEffect(hit);
+        }
+        else
+        {
+            bulletTracer.ApplyTracer(muzzleFlash.transform.position, ray.origin + ray.direction * weaponRange);
         }
     }
 
     public void HandleReload()
     {
-        if (totalAmmos <= 0 || !gunActivated) return;
+        if (!gunActivated || totalAmmos <= 0 || isReloading) return;
 
         isReloading = true;
         gunAnimations.PlayReloadAnimation();
+        PlayGunReloadSFX();
     }
 
     public void ReloadFinished()
@@ -107,6 +128,29 @@ public class GunController : MonoBehaviour
         gunSway.HandleSway(transform, playerController, isShooting, isAiming);
     }
 
+    private void HandleGunRecoil()
+    {
+        gunRecoil.UpdateRecoil(transform);
+    }
+
+    private void HandleGunAiming()
+    {
+        gunAiming.ApplyAiming(transform.parent, mainCamera, isAiming);
+    }
+
+    private void PlayGunShootSFX()
+    {
+        if (gunSource)
+            gunSource.PlayOneShot(shootClip);
+    }
+
+    private void PlayGunReloadSFX()
+    {
+        if (gunSource)
+            gunSource.PlayOneShot(reloadClip);
+    }
+
     public void GunActivated(bool activeStatus) => gunActivated = activeStatus;
     public void GunShooting(bool shootStatus) => isShooting = shootStatus;
+    public void GunAiming(bool aimStatus) => isAiming = aimStatus;
 }
