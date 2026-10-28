@@ -10,7 +10,7 @@ public class GunRecoil
     [Space]
     [SerializeField] private float returnSpeed = 10f;
     [SerializeField] private float recoverSpeed = 8f;
-    [SerializeField] private float aimRecoilMultiplier = .5f;
+    [SerializeField] private float aimRecoilMultiplier = .25f;
 
     private Vector3 originalPos;
     private Quaternion originalRot;
