@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 
 public class GameInput : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class GameInput : MonoBehaviour
     public event Action OnShootReleased;
     public event Action OnReloadPressed;
     public event Action OnAimPressed;
+    public event Action<int> OnSlotSelected;
 
     private PlayerInputSet inputSet;
     private PlayerInputSet.PlayerActions player;
@@ -33,6 +35,7 @@ public class GameInput : MonoBehaviour
         player.Shoot.canceled += OnShootCanceled;
         player.Reload.performed += OnReloadPerformed;
         player.Aim.performed += OnAimPerformed;
+        player.SwitchGun.performed += OnSwitchPerformend;
     }
 
     private void OnDisable()
@@ -46,18 +49,36 @@ public class GameInput : MonoBehaviour
         player.Shoot.canceled -= OnShootCanceled;
         player.Reload.performed -= OnReloadPerformed;
         player.Aim.performed -= OnAimPerformed;
+        player.SwitchGun.performed -= OnSwitchPerformend;
     }
 
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
 
     public Vector2 GetMouseInput() => player.Look.ReadValue<Vector2>();
 
-    private void OnJumpPerformed(InputAction.CallbackContext obj) => OnJumpPressed?.Invoke();
-    private void OnCrouchPerformed(InputAction.CallbackContext obj) => OnCrouchPressed?.Invoke();
-    private void OnSprintPerformed(InputAction.CallbackContext obj) => OnSprintPressed?.Invoke();
-    private void OnSprintCanceled(InputAction.CallbackContext obj) => OnSprintReleased?.Invoke();
-    private void OnShootPerformed(InputAction.CallbackContext obj) => OnShootPressed?.Invoke();
-    private void OnShootCanceled(InputAction.CallbackContext obj) => OnShootReleased?.Invoke();
-    private void OnReloadPerformed(InputAction.CallbackContext obj) => OnReloadPressed?.Invoke();
-    private void OnAimPerformed(InputAction.CallbackContext obj) => OnAimPressed?.Invoke();
+    private void OnJumpPerformed(InputAction.CallbackContext context) => OnJumpPressed?.Invoke();
+    private void OnCrouchPerformed(InputAction.CallbackContext context) => OnCrouchPressed?.Invoke();
+    private void OnSprintPerformed(InputAction.CallbackContext context) => OnSprintPressed?.Invoke();
+    private void OnSprintCanceled(InputAction.CallbackContext context) => OnSprintReleased?.Invoke();
+    private void OnShootPerformed(InputAction.CallbackContext context) => OnShootPressed?.Invoke();
+    private void OnShootCanceled(InputAction.CallbackContext context) => OnShootReleased?.Invoke();
+    private void OnReloadPerformed(InputAction.CallbackContext context) => OnReloadPressed?.Invoke();
+    private void OnAimPerformed(InputAction.CallbackContext context) => OnAimPressed?.Invoke();
+
+    private void OnSwitchPerformend(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        if (context.control is not KeyControl key) return;
+
+        switch (key.keyCode)
+        {
+            case Key.Digit1:
+                OnSlotSelected?.Invoke(0);
+                break;
+
+            case Key.Digit2:
+                OnSlotSelected?.Invoke(1);
+                break;
+        }
+    }
 }

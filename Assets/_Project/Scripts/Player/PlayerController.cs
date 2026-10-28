@@ -21,8 +21,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchHeight;
     [SerializeField] private bool isCrouching;
 
-    [Header("Sprint Settings")]
+    [Header("Moving Status")]
     [SerializeField] private bool isSprinting;
+    [SerializeField] private bool isMoving;
 
     [Header("References")]
     [SerializeField] private Camera mainCamera;
@@ -31,20 +32,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyAnimations bodyAnimations;
 
     private CharacterController controller;
-    private GunController gunActivated;
+    private GunController gunAssigned;
     private GameInput gameInput;
     private Vector2 moveInput;
     private Vector3 cameraRecoilRotation;
     private bool isAiming;
 
+    public bool IsCrouching => isCrouching;
     public bool IsSprinting => isSprinting;
-    public bool IsMoving { get; private set; }
+    public bool IsMoving => isMoving;
     public GameInput GameInput => gameInput;
     
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
-        gunActivated =GetComponentInChildren<GunController>();
         gameInput = GetComponent<GameInput>();
 
         currentSpeed = walkSpeed;
@@ -110,7 +111,7 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         Vector3 finalMove = currentSpeed * movement + playerVelocity.y * Vector3.up;
 
-        IsMoving = controller.velocity.magnitude > .1f;
+        isMoving = controller.velocity.magnitude > .1f;
         controller.Move(finalMove * Time.deltaTime);
     }
 
@@ -135,6 +136,16 @@ public class PlayerController : MonoBehaviour
     private void HandleFullBodyAnimation()
     {
         bodyAnimations.HandleAnimations(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
+    }
+
+    public void AssginGun(GunController gun)
+    {
+        gunAssigned = gun;
+        if (isAiming)
+        {
+            isAiming = !isAiming;
+            gunAssigned.GunAiming(isAiming);
+        }
     }
 
     private void HandleJumpPressed()
@@ -165,22 +176,22 @@ public class PlayerController : MonoBehaviour
 
     private void HandleShootPressed()
     {
-        gunActivated.GunShooting(true);
+        gunAssigned.GunShooting(true);
     }
 
     private void HandleShootReleased()
     {
-        gunActivated.GunShooting(false);
+        gunAssigned.GunShooting(false);
     }
 
     private void HandleReloadPressed()
     {
-        gunActivated.HandleReload();
+        gunAssigned.HandleReload();
     }
 
     private void HandleAimPressed()
     {
         isAiming = !isAiming;
-        gunActivated.GunAiming(isAiming);
+        gunAssigned.GunAiming(isAiming);
     }
 }

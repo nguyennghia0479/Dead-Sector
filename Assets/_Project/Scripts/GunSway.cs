@@ -44,7 +44,7 @@ public class GunSway
         Vector2 mouseInput = gameInput.GetMouseInput();
         Vector2 moveInput = gameInput.GetMoveInputNormalized();
 
-        Vector3 mouseSway = GetMouseSway(mouseInput);
+        Vector3 mouseSway = GetMouseSway(mouseInput) * targetSwayMultiplier;
         Vector3 idleSway = GetIdleSway(mouseInput, moveInput) * targetSwayMultiplier;
         Vector3 moveSway = GetMoveSway(moveInput, playerController.IsSprinting) * targetSwayMultiplier;
 

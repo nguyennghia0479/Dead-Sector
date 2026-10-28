@@ -4,7 +4,9 @@ public class GunController : MonoBehaviour
 {
     [Header("Gun Settings")]
     [SerializeField] private float weaponRange = 100f;
-    [SerializeField] private float fireRate;
+    [SerializeField] private float fireRate = .2f;
+    [SerializeField] private float spreadMultiplier = 1f;
+    [SerializeField] private bool hasRedDot;
     [SerializeField] private LayerMask ignoreLayer;
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
     private float nextFireTimer;
@@ -13,6 +15,7 @@ public class GunController : MonoBehaviour
     [SerializeField] private int totalAmmos;
     [SerializeField] private int maxAmmo;
     [SerializeField] private int currentAmmos;
+    [SerializeField] private bool isIncremental;
     [SerializeField] private bool isReloading;
 
     [Header("Audio Settings")]
@@ -28,8 +31,9 @@ public class GunController : MonoBehaviour
     [SerializeField] private BulletTracer bulletTracer;
     [SerializeField] private SurfaceHitEffect surfaceHitEffect;
     [SerializeField] private GunAiming gunAiming;
+    [SerializeField] private GunAccuracy gunAccuracy;
 
-    private PlayerController playerController;
+    private PlayerController player;
     private GameInput gameInput;
     private Camera mainCamera;
     private bool gunActivated;
@@ -38,29 +42,30 @@ public class GunController : MonoBehaviour
 
     private void Awake()
     {
-        currentAmmos = maxAmmo;
-    }
-
-    private void Start()
-    {
-        playerController = GetComponentInParent<PlayerController>();
-        gameInput = playerController.GameInput;
+        player = GetComponentInParent<PlayerController>();
+        gameInput = player.GameInput;
         mainCamera = Camera.main;
-
+        currentAmmos = maxAmmo;
+        
         gunAnimations.Initialized();
         gunSway.Initialized(gameInput, transform.localPosition);
         gunRecoil.Initialized(transform.localPosition, transform.localRotation);
         surfaceHitEffect.Initialized();
         gunAiming.Initialized(transform.parent.localPosition, transform.parent.localEulerAngles, mainCamera.fieldOfView);
+        gunAccuracy.Initialized();
     }
 
     private void Update()
     {
+        if (!gunActivated) return;
+
         HandleShoot();
-        HandleUpdateRecoil();
+        HandleUpdateCameraRecoil();
         HandleGunSway();
         HandleGunRecoil();
         HandleGunAiming();
+        HandleGunAccuracy();
+        HandleCrosshairReactive();
     }
 
     private void HandleShoot()
@@ -80,13 +85,15 @@ public class GunController : MonoBehaviour
 
     private void Shoot()
     {
+        PlayGunShootSFX();
         currentAmmos--;
         muzzleFlash.Play();
         cameraRecoil.ApplyRecoil(isAiming);
         gunRecoil.ApplyRecoil(isAiming);
-        PlayGunShootSFX();
+        gunAccuracy.ApplyBloom(isAiming);
 
-        Ray ray = new(mainCamera.transform.position, mainCamera.transform.forward);
+        Vector3 shotDirection = gunAccuracy.GetDirection(mainCamera.transform, spreadMultiplier);
+        Ray ray = new(mainCamera.transform.position, shotDirection);
         if (Physics.Raycast(ray, out RaycastHit hit, weaponRange, ~ignoreLayer))
         {
             Debug.Log(hit.collider.gameObject.name);
@@ -104,28 +111,46 @@ public class GunController : MonoBehaviour
         if (!gunActivated || totalAmmos <= 0 || isReloading) return;
 
         isReloading = true;
-        gunAnimations.PlayReloadAnimation();
+        gunAnimations.PlayReloadAnimation(isIncremental);
         PlayGunReloadSFX();
     }
 
     public void ReloadFinished()
     {
-        int ammosNeeded = maxAmmo - currentAmmos;
-        int ammosToReload = Mathf.Min(ammosNeeded, totalAmmos);
+        if (!isIncremental)
+        {
+            int ammosNeeded = maxAmmo - currentAmmos;
+            int ammosToReload = Mathf.Min(ammosNeeded, totalAmmos);
 
-        currentAmmos += ammosToReload;
-        totalAmmos -= ammosToReload;
+            currentAmmos += ammosToReload;
+            totalAmmos -= ammosToReload;
+        }
         isReloading = false;
     }
 
-    private void HandleUpdateRecoil()
+    public void ReloadLoop()
     {
-        playerController.UpdateCameraRecoilRotation(cameraRecoil.GetCurrentRecoil());
+        currentAmmos++;
+        totalAmmos--;
+        int ammosToReload = maxAmmo - currentAmmos;
+        if (ammosToReload > 0)
+        {
+            gunAnimations.PlayReloadLoopAnimation();
+        }
+        else
+        {
+            gunAnimations.PlayReloadFinishedAnimation();
+        }
+    }
+
+    private void HandleUpdateCameraRecoil()
+    {
+        player.UpdateCameraRecoilRotation(cameraRecoil.GetCurrentRecoil());
     }
 
     private void HandleGunSway()
     {
-        gunSway.HandleSway(transform, playerController, isShooting, isAiming);
+        gunSway.HandleSway(transform, player, isShooting, isAiming);
     }
 
     private void HandleGunRecoil()
@@ -135,7 +160,26 @@ public class GunController : MonoBehaviour
 
     private void HandleGunAiming()
     {
+        UIManager.Instance.SetCrosshairVisible(isAiming, hasRedDot);
         gunAiming.ApplyAiming(transform.parent, mainCamera, isAiming);
+    }
+
+    private void HandleGunAccuracy()
+    {
+        gunAccuracy.UpdateSpread(player.IsMoving, player.IsSprinting, player.IsCrouching, isAiming);
+    }
+
+    private void HandleCrosshairReactive()
+    {
+        if (!isAiming)
+            UIManager.Instance.UpdateCrosshair(gunAccuracy.CurrentSpread, gunAccuracy.MinSpread, gunAccuracy.MaxSpread);
+    }
+
+    public void PlayUnequipAnimation()
+    {
+        gunAnimations.PlayUnequipAnimation();
+        if (isAiming)
+            isAiming = false;
     }
 
     private void PlayGunShootSFX()

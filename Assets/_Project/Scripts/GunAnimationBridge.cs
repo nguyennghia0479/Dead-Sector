@@ -19,6 +19,11 @@ public class GunAnimationBridge : MonoBehaviour
         gunController.GunActivated(false);
     }
 
+    public void CallOnShellInserted()
+    {
+        gunController.ReloadLoop();
+    }
+
     public void CallReloadFinished()
     {
         gunController.ReloadFinished();
