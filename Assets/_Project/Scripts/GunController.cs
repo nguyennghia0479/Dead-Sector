@@ -9,6 +9,7 @@ public class GunController : MonoBehaviour
     [SerializeField] private bool hasRedDot;
     [SerializeField] private LayerMask ignoreLayer;
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
+    [SerializeField] private GunInteraction gunDrop;
     private float nextFireTimer;
 
     [Header("Ammo Settings")]
@@ -22,6 +23,8 @@ public class GunController : MonoBehaviour
     [SerializeField] private AudioSource gunSource;
     [SerializeField] private AudioClip shootClip;
     [SerializeField] private AudioClip reloadClip;
+    [SerializeField] private AudioClip reloadLoop;
+    [SerializeField] private AudioClip reloadnEndClip;
 
     [Header("Gun Attributes")]
     [SerializeField] private GunAnimations gunAnimations;
@@ -39,6 +42,9 @@ public class GunController : MonoBehaviour
     private bool gunActivated;
     private bool isShooting;
     private bool isAiming;
+
+    public bool GunActivated => gunActivated;
+    public GunInteraction GunDropped => gunDrop;
 
     private void Awake()
     {
@@ -71,7 +77,7 @@ public class GunController : MonoBehaviour
     private void HandleShoot()
     {
         nextFireTimer += Time.deltaTime;
-        if (!gunActivated || !isShooting || isReloading || nextFireTimer < fireRate)
+        if (!isShooting || nextFireTimer < fireRate)
             return;
 
         if (currentAmmos > 0)
@@ -85,6 +91,14 @@ public class GunController : MonoBehaviour
 
     private void Shoot()
     {
+        if (isReloading)
+        {
+            if (isIncremental)
+                gunAnimations.PlayReloadFinishedAnimation();
+            else
+                return;
+        }
+
         PlayGunShootSFX();
         currentAmmos--;
         muzzleFlash.Play();
@@ -108,11 +122,11 @@ public class GunController : MonoBehaviour
 
     public void HandleReload()
     {
-        if (!gunActivated || totalAmmos <= 0 || isReloading) return;
+        if (isReloading || totalAmmos <= 0 || currentAmmos == maxAmmo) return;
 
         isReloading = true;
         gunAnimations.PlayReloadAnimation(isIncremental);
-        PlayGunReloadSFX();
+        PlayGunReloadSFX(reloadClip);
     }
 
     public void ReloadFinished()
@@ -139,8 +153,14 @@ public class GunController : MonoBehaviour
         }
         else
         {
+            PlayGunReloadSFX(reloadnEndClip);
             gunAnimations.PlayReloadFinishedAnimation();
         }
+    }
+
+    public void PlayReloadLoopSound()
+    {
+        PlayGunReloadSFX(reloadLoop);
     }
 
     private void HandleUpdateCameraRecoil()
@@ -184,17 +204,17 @@ public class GunController : MonoBehaviour
 
     private void PlayGunShootSFX()
     {
-        if (gunSource)
+        if (gunSource && shootClip != null)
             gunSource.PlayOneShot(shootClip);
     }
 
-    private void PlayGunReloadSFX()
+    private void PlayGunReloadSFX(AudioClip clip)
     {
-        if (gunSource)
-            gunSource.PlayOneShot(reloadClip);
+        if (gunSource && clip != null)
+            gunSource.PlayOneShot(clip);
     }
 
-    public void GunActivated(bool activeStatus) => gunActivated = activeStatus;
-    public void GunShooting(bool shootStatus) => isShooting = shootStatus;
-    public void GunAiming(bool aimStatus) => isAiming = aimStatus;
+    public void SetGunActivated(bool activeStatus) => gunActivated = activeStatus;
+    public void SetGunShooting(bool shootStatus) => isShooting = shootStatus;
+    public void SetGunAiming(bool aimStatus) => isAiming = aimStatus;
 }

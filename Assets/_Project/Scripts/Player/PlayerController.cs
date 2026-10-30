@@ -26,6 +26,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isMoving;
 
     [Header("References")]
+    [SerializeField] private Transform gunHolder;
     [SerializeField] private Camera mainCamera;
     [SerializeField] private PlayerCamera playerCam;
     [SerializeField] private HeadBob headBob;
@@ -33,6 +34,7 @@ public class PlayerController : MonoBehaviour
 
     private CharacterController controller;
     private GunController gunAssigned;
+    private WeaponManager weaponManager;
     private GameInput gameInput;
     private Vector2 moveInput;
     private Vector3 cameraRecoilRotation;
@@ -42,11 +44,14 @@ public class PlayerController : MonoBehaviour
     public bool IsSprinting => isSprinting;
     public bool IsMoving => isMoving;
     public GameInput GameInput => gameInput;
-    
+    public WeaponManager WeaponManager => weaponManager;
+    public Transform GunHolder => gunHolder;
+
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         gameInput = GetComponent<GameInput>();
+        weaponManager = GetComponent<WeaponManager>();
 
         currentSpeed = walkSpeed;
         originalHeight = controller.height;
@@ -73,7 +78,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
-        gameInput.OnJumpPressed -= HandleJumpPressed; 
+        gameInput.OnJumpPressed -= HandleJumpPressed;
         gameInput.OnCrouchPressed -= HandleCrouchPressed;
         gameInput.OnSprintPressed -= HandleSprintPressed;
         gameInput.OnSprintReleased -= HandleSprintRelease;
@@ -144,7 +149,7 @@ public class PlayerController : MonoBehaviour
         if (isAiming)
         {
             isAiming = !isAiming;
-            gunAssigned.GunAiming(isAiming);
+            gunAssigned.SetGunAiming(isAiming);
         }
     }
 
@@ -176,22 +181,28 @@ public class PlayerController : MonoBehaviour
 
     private void HandleShootPressed()
     {
-        gunAssigned.GunShooting(true);
+        if (gunAssigned.GunActivated)
+            gunAssigned.SetGunShooting(true);
     }
 
     private void HandleShootReleased()
     {
-        gunAssigned.GunShooting(false);
+        if (gunAssigned.GunActivated)
+            gunAssigned.SetGunShooting(false);
     }
 
     private void HandleReloadPressed()
     {
-        gunAssigned.HandleReload();
+        if (gunAssigned.GunActivated)
+            gunAssigned.HandleReload();
     }
 
     private void HandleAimPressed()
     {
-        isAiming = !isAiming;
-        gunAssigned.GunAiming(isAiming);
+        if (gunAssigned.GunActivated)
+        {
+            isAiming = !isAiming;
+            gunAssigned.SetGunAiming(isAiming);
+        }
     }
 }
