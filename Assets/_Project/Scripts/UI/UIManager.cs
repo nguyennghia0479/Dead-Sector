@@ -5,6 +5,7 @@ public class UIManager : MonoBehaviour
     public static UIManager Instance { get; private set; }
 
     [SerializeField] private Crosshair crosshair;
+    [SerializeField] private InteractionUI interactionUI;
 
     private void Awake()
     {
@@ -20,4 +21,9 @@ public class UIManager : MonoBehaviour
     }
 
     public void SetCrosshairVisible(bool isVisible, bool hasRedDot) => crosshair.SetVisible(isVisible, hasRedDot);
+
+    public void InteractionInitialized(PlayerInteraction playerInteraction)
+    {
+        interactionUI.Initialized(playerInteraction);
+    }
 }

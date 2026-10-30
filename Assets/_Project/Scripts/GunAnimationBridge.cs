@@ -9,14 +9,14 @@ public class GunAnimationBridge : MonoBehaviour
         gunController = GetComponent<GunController>();
     }
 
-    public void CallGunEquiped()
+    public void CallDrawGun()
     {
-        gunController.GunActivated(true);
+        gunController.SetGunActivated(true);
     }
 
-    public void CallGunUnequiped()
+    public void CallHideGun()
     {
-        gunController.GunActivated(false);
+        gunController.SetGunActivated(false);
     }
 
     public void CallOnShellInserted()
@@ -24,8 +24,14 @@ public class GunAnimationBridge : MonoBehaviour
         gunController.ReloadLoop();
     }
 
+    public void CallOnShellInsertedSound()
+    {
+        gunController.PlayReloadLoopSound();
+    }
+
     public void CallReloadFinished()
     {
         gunController.ReloadFinished();
     }
+
 }

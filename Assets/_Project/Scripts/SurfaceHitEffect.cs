@@ -44,8 +44,10 @@ public class SurfaceHitEffect
         if (hit.collider == null) return;
 
         HitEffect hitEffect = GetHitEffect(hit);
+      
         GameObject hitVFX = hitEffect != null ? hitEffect.hitVFX : defaultVFX;
         AudioClip hitSFX = hitEffect != null ? hitEffect.hitSFX : defaultSFX;
+        float volume = hitEffect != null ? hitEffect.volume : 1f;
 
         if (hitVFX != null)
         {
@@ -54,7 +56,8 @@ public class SurfaceHitEffect
         }
 
         if (hitSFX != null)
-            AudioSource.PlayClipAtPoint(hitSFX, hit.point, hitEffect.volume);
+            AudioSource.PlayClipAtPoint(hitSFX, hit.point, volume);
+        
     }
 
     private HitEffect GetHitEffect(RaycastHit hit)

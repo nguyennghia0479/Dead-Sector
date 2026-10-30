@@ -7,10 +7,10 @@ public class GunAnimations
     [SerializeField] private AnimatorOverrideController gunAnimatorOverride;
 
     private static readonly int ReloadHash = Animator.StringToHash("reload");
-    private static readonly int IsLoopReloadHash = Animator.StringToHash("isLoopReload");
+    private static readonly int IsIncrementalHash = Animator.StringToHash("isIncremental");
     private static readonly int ReloadLoopHash = Animator.StringToHash("reloadLoop");
     private static readonly int ReloadFinishedHash = Animator.StringToHash("reloadFinished");
-    private static readonly int UnequipHash = Animator.StringToHash("unequip");
+    private static readonly int HideHash = Animator.StringToHash("hide");
 
     public void Initialized()
     {
@@ -20,7 +20,11 @@ public class GunAnimations
 
     public void PlayReloadAnimation(bool isIncremental)
     {
-        gunAnimator.SetBool(IsLoopReloadHash, isIncremental);
+        gunAnimator.ResetTrigger(ReloadHash);
+        gunAnimator.ResetTrigger(ReloadLoopHash);
+        gunAnimator.ResetTrigger(ReloadFinishedHash);
+
+        gunAnimator.SetBool(IsIncrementalHash, isIncremental);
         gunAnimator.SetTrigger(ReloadHash);
     }
 
@@ -36,6 +40,6 @@ public class GunAnimations
     
     public void PlayUnequipAnimation()
     {
-        gunAnimator.SetTrigger(UnequipHash);
+        gunAnimator.SetTrigger(HideHash);
     }
 }
