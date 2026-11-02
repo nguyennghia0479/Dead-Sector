@@ -5,8 +5,11 @@ public class GunController : MonoBehaviour
     [Header("Gun Settings")]
     [SerializeField] private float weaponRange = 100f;
     [SerializeField] private float fireRate = .2f;
-    [SerializeField] private float spreadMultiplier = 1f;
-    [SerializeField] private bool hasRedDot;
+    [SerializeField] private float bulletForce = 10f;
+    [SerializeField] private int pelletPerShot = 1;
+    [SerializeField] private float pelletSpreadMultiplier = 1f;
+    [SerializeField] private bool hasScope;
+    [SerializeField] private bool isSniper;
     [SerializeField] private LayerMask ignoreLayer;
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
     [SerializeField] private GunInteraction gunDrop;
@@ -21,9 +24,10 @@ public class GunController : MonoBehaviour
 
     [Header("Audio Settings")]
     [SerializeField] private AudioSource gunSource;
+    [SerializeField] private AudioClip noAmmoClip;
     [SerializeField] private AudioClip shootClip;
     [SerializeField] private AudioClip reloadClip;
-    [SerializeField] private AudioClip reloadLoop;
+    [SerializeField] private AudioClip reloadLoopClip;
     [SerializeField] private AudioClip reloadnEndClip;
 
     [Header("Gun Attributes")]
@@ -45,6 +49,10 @@ public class GunController : MonoBehaviour
 
     public bool GunActivated => gunActivated;
     public GunInteraction GunDropped => gunDrop;
+    public GunAnimations GunAnimations => gunAnimations;
+    public GunAiming GunAiming => gunAiming;
+    public PlayerController Player => player;
+    public bool IsSniper => isSniper;
 
     private void Awake()
     {
@@ -52,13 +60,19 @@ public class GunController : MonoBehaviour
         gameInput = player.GameInput;
         mainCamera = Camera.main;
         currentAmmos = maxAmmo;
-        
+    }
+
+    private void Start()
+    {
         gunAnimations.Initialized();
         gunSway.Initialized(gameInput, transform.localPosition);
         gunRecoil.Initialized(transform.localPosition, transform.localRotation);
         surfaceHitEffect.Initialized();
-        gunAiming.Initialized(transform.parent.localPosition, transform.parent.localEulerAngles, mainCamera.fieldOfView);
+        gunAiming.Initialized(player.ADS.DefaultPosition, player.ADS.DefaultRotation, player.DefaultMainCamFOV);
         gunAccuracy.Initialized();
+
+        if (hasScope)
+            gunAiming.InitializedScope(mainCamera, player.ScopeCamera.Camera);
     }
 
     private void Update()
@@ -74,6 +88,13 @@ public class GunController : MonoBehaviour
         HandleCrosshairReactive();
     }
 
+    private void LateUpdate()
+    {
+        if (!gunActivated || !hasScope) return;
+
+        HandleScopeAiming();
+    }
+
     private void HandleShoot()
     {
         nextFireTimer += Time.deltaTime;
@@ -86,7 +107,14 @@ public class GunController : MonoBehaviour
             Shoot();
         }
         else
+        {
             HandleReload();
+            if (totalAmmos <= 0)
+            {
+                nextFireTimer = 0f;
+                PlayNoAmmoSFX();
+            }
+        }
     }
 
     private void Shoot()
@@ -106,13 +134,22 @@ public class GunController : MonoBehaviour
         gunRecoil.ApplyRecoil(isAiming);
         gunAccuracy.ApplyBloom(isAiming);
 
-        Vector3 shotDirection = gunAccuracy.GetDirection(mainCamera.transform, spreadMultiplier);
+        for (int i = 0; i < pelletPerShot; i++)
+            ShootPellet();
+    }
+
+    private void ShootPellet()
+    {
+        Vector3 shotDirection = gunAccuracy.GetDirection(mainCamera.transform, pelletSpreadMultiplier);
         Ray ray = new(mainCamera.transform.position, shotDirection);
         if (Physics.Raycast(ray, out RaycastHit hit, weaponRange, ~ignoreLayer))
         {
             Debug.Log(hit.collider.gameObject.name);
             bulletTracer.ApplyTracer(muzzleFlash.transform.position, hit.point);
             surfaceHitEffect.ApplyHitEffect(hit);
+
+            if (hit.collider.TryGetComponent<Rigidbody>(out var rb))
+                rb.AddForce(-hit.normal * bulletForce);
         }
         else
         {
@@ -124,6 +161,7 @@ public class GunController : MonoBehaviour
     {
         if (isReloading || totalAmmos <= 0 || currentAmmos == maxAmmo) return;
 
+        player.CancelAimingIfNeeded();
         isReloading = true;
         gunAnimations.PlayReloadAnimation(isIncremental);
         PlayGunReloadSFX(reloadClip);
@@ -160,7 +198,7 @@ public class GunController : MonoBehaviour
 
     public void PlayReloadLoopSound()
     {
-        PlayGunReloadSFX(reloadLoop);
+        PlayGunReloadSFX(reloadLoopClip);
     }
 
     private void HandleUpdateCameraRecoil()
@@ -180,8 +218,15 @@ public class GunController : MonoBehaviour
 
     private void HandleGunAiming()
     {
-        UIManager.Instance.SetCrosshairVisible(isAiming, hasRedDot);
+        UIManager.Instance.SetCrosshairVisible(isAiming, hasScope, isSniper);
         gunAiming.ApplyAiming(transform.parent, mainCamera, isAiming);
+        if (isSniper)
+            UIManager.Instance.SetSniperVisible(isAiming);
+    }
+
+    private void HandleScopeAiming()
+    {
+        gunAiming.HandleScopeAiming();
     }
 
     private void HandleGunAccuracy()
@@ -195,22 +240,28 @@ public class GunController : MonoBehaviour
             UIManager.Instance.UpdateCrosshair(gunAccuracy.CurrentSpread, gunAccuracy.MinSpread, gunAccuracy.MaxSpread);
     }
 
-    public void PlayUnequipAnimation()
+    public void PlayUnequipAnimation(bool isSwitchGun = true)
     {
-        gunAnimations.PlayUnequipAnimation();
+        gunAnimations.PlayUnequipAnimation(isSwitchGun);
         if (isAiming)
             isAiming = false;
     }
 
     private void PlayGunShootSFX()
     {
-        if (gunSource && shootClip != null)
+        if (gunSource && shootClip)
             gunSource.PlayOneShot(shootClip);
+    }
+
+    private void PlayNoAmmoSFX()
+    {
+        if (gunSource && noAmmoClip)
+            gunSource.PlayOneShot(noAmmoClip);
     }
 
     private void PlayGunReloadSFX(AudioClip clip)
     {
-        if (gunSource && clip != null)
+        if (gunSource && clip)
             gunSource.PlayOneShot(clip);
     }
 

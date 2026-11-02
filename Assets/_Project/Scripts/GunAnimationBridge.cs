@@ -16,7 +16,14 @@ public class GunAnimationBridge : MonoBehaviour
 
     public void CallHideGun()
     {
-        gunController.SetGunActivated(false);
+        bool isSwitchGun = gunController.GunAnimations.IsSwitchGun();
+        if (isSwitchGun)
+            gunController.SetGunActivated(false);
+        else
+        {
+            gunController.Player.StartThrowable();
+            gunController.gameObject.SetActive(false);
+        }
     }
 
     public void CallOnShellInserted()

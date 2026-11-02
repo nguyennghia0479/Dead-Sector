@@ -472,8 +472,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GunController
   weaponRange: 75
   fireRate: 1
-  spreadMultiplier: 1
-  hasRedDot: 0
+  bulletForce: 20
+  pelletPerShot: 9
+  pelletSpreadMultiplier: 1
+  hasScope: 0
+  isSniper: 0
   ignoreLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -485,9 +488,10 @@ MonoBehaviour:
   isIncremental: 1
   isReloading: 0
   gunSource: {fileID: 4038287226893164532}
+  noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
   shootClip: {fileID: 8300000, guid: a53a4dd0a72989b4094f57d735f6e536, type: 3}
   reloadClip: {fileID: 0}
-  reloadLoop: {fileID: 8300000, guid: abe960ea75b7cad468800a271b49b828, type: 3}
+  reloadLoopClip: {fileID: 8300000, guid: abe960ea75b7cad468800a271b49b828, type: 3}
   reloadnEndClip: {fileID: 8300000, guid: be7ad977e24f96441ba6dd7fbbe42d2b, type: 3}
   gunAnimations:
     gunAnimator: {fileID: 2003264198339736080}
@@ -572,6 +576,18 @@ MonoBehaviour:
     aimRotation: {x: 0, y: 1.475, z: -4.3}
     aimMainCamFOV: 45
     aimingSpeed: 10
+    mainCam: {fileID: 0}
+    scopeCam: {fileID: 0}
+    additionFOV: 18
+    magnification: 1
+    renderTexture: {fileID: 0}
+    renderer: {fileID: 0}
+    lensMaterialIndex: 0
+    scopeMat: {fileID: 0}
+    scopeTiling: {x: 1, y: 1}
+    scopeOffset: {x: 0, y: 0}
+    useScopeDebug: 0
+    lensAspectRatio: 1
   gunAccuracy:
     idleSpread: 0.35
     walkSpread: 1.5
@@ -603,8 +619,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 0
-  MinDistance: 1
-  MaxDistance: 50
+  MinDistance: 5
+  MaxDistance: 100
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0

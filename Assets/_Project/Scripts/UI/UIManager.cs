@@ -6,6 +6,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private Crosshair crosshair;
     [SerializeField] private InteractionUI interactionUI;
+    [SerializeField] private GameObject sniperImage;
 
     private void Awake()
     {
@@ -13,6 +14,8 @@ public class UIManager : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        sniperImage.SetActive(false);
     }
 
     public void UpdateCrosshair(float currentSpread, float minSpread, float maxSpread)
@@ -20,10 +23,12 @@ public class UIManager : MonoBehaviour
         crosshair.UpdateCrosshair(currentSpread, minSpread, maxSpread);
     }
 
-    public void SetCrosshairVisible(bool isVisible, bool hasRedDot) => crosshair.SetVisible(isVisible, hasRedDot);
+    public void SetCrosshairVisible(bool isVisible, bool hasRedDot, bool isSniper) => crosshair.SetVisible(isVisible, hasRedDot, isSniper);
 
     public void InteractionInitialized(PlayerInteraction playerInteraction)
     {
         interactionUI.Initialized(playerInteraction);
     }
+
+    public void SetSniperVisible(bool isVisible) => sniperImage.SetActive(isVisible);
 }
