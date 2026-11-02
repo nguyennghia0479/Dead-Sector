@@ -16,6 +16,7 @@ public class GameInput : MonoBehaviour
     public event Action<int> OnSlotSelected;
     public event Action OnInteractPressed;
     public event Action OnInteractReleased;
+    public event Action<ThrowableType> OnThrown;
 
     private PlayerInputSet inputSet;
     private PlayerInputSet.PlayerActions player;
@@ -38,8 +39,9 @@ public class GameInput : MonoBehaviour
         player.Reload.performed += OnReloadPerformed;
         player.Aim.performed += OnAimPerformed;
         player.SwitchGun.performed += OnSwitchPerformend;
-        player.Interaction.performed += OnInteractStarted;
+        player.Interaction.performed += OnInteractPerformed;
         player.Interaction.canceled += OnInteractCanceled;
+        player.Throw.performed += OnThrowPerformed;
     }
 
     private void OnDisable()
@@ -54,12 +56,12 @@ public class GameInput : MonoBehaviour
         player.Reload.performed -= OnReloadPerformed;
         player.Aim.performed -= OnAimPerformed;
         player.SwitchGun.performed -= OnSwitchPerformend;
-        player.Interaction.performed -= OnInteractStarted;
+        player.Interaction.performed -= OnInteractPerformed;
         player.Interaction.canceled -= OnInteractCanceled;
+        player.Throw.performed -= OnThrowPerformed;
     }
 
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
-
     public Vector2 GetMouseInput() => player.Look.ReadValue<Vector2>();
 
     private void OnJumpPerformed(InputAction.CallbackContext context) => OnJumpPressed?.Invoke();
@@ -70,7 +72,7 @@ public class GameInput : MonoBehaviour
     private void OnShootCanceled(InputAction.CallbackContext context) => OnShootReleased?.Invoke();
     private void OnReloadPerformed(InputAction.CallbackContext context) => OnReloadPressed?.Invoke();
     private void OnAimPerformed(InputAction.CallbackContext context) => OnAimPressed?.Invoke();
-    private void OnInteractStarted(InputAction.CallbackContext context) => OnInteractPressed?.Invoke();
+    private void OnInteractPerformed(InputAction.CallbackContext context) => OnInteractPressed?.Invoke();
     private void OnInteractCanceled(InputAction.CallbackContext context) => OnInteractReleased?.Invoke();
 
     private void OnSwitchPerformend(InputAction.CallbackContext context)
@@ -86,6 +88,22 @@ public class GameInput : MonoBehaviour
 
             case Key.Digit2:
                 OnSlotSelected?.Invoke(1);
+                break;
+        }
+    }
+
+    private void OnThrowPerformed(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        if (context.control is not KeyControl key) return;
+
+        switch (key.keyCode)
+        {
+            case Key.G:
+                OnThrown?.Invoke(ThrowableType.Grenade);
+                break;
+            case Key.Q:
+                OnThrown?.Invoke(ThrowableType.Molotov);
                 break;
         }
     }

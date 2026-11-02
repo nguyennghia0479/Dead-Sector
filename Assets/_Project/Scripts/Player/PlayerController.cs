@@ -21,6 +21,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchHeight;
     [SerializeField] private bool isCrouching;
 
+    [Header("Throw Settings")]
+    [SerializeField] private float throwForce = 12f;
+    [SerializeField] private Transform throwSpawn;
+
     [Header("Moving Status")]
     [SerializeField] private bool isSprinting;
     [SerializeField] private bool isMoving;
@@ -33,35 +37,50 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyAnimations bodyAnimations;
 
     private CharacterController controller;
-    private GunController gunAssigned;
     private WeaponManager weaponManager;
+    private GunController gunAssigned;
+    private ThrowableController throwableAssigned;
     private GameInput gameInput;
+    private ScopeCamera scopeCamera;
+    private ADS aimDotSight;
     private Vector2 moveInput;
     private Vector3 cameraRecoilRotation;
     private bool isAiming;
+    private float defaultMainCamFOV;
 
     public bool IsCrouching => isCrouching;
     public bool IsSprinting => isSprinting;
     public bool IsMoving => isMoving;
     public GameInput GameInput => gameInput;
     public WeaponManager WeaponManager => weaponManager;
+    public GunController GunActivated => gunAssigned;
+    public ThrowableController ThrowableActivated => throwableAssigned;
+    public ScopeCamera ScopeCamera => scopeCamera;
+    public ADS ADS => aimDotSight;
     public Transform GunHolder => gunHolder;
+    public float DefaultMainCamFOV => defaultMainCamFOV;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
         gameInput = GetComponent<GameInput>();
         weaponManager = GetComponent<WeaponManager>();
+        throwableAssigned = GetComponentInChildren<ThrowableController>();
+        scopeCamera = GetComponentInChildren<ScopeCamera>();
+        aimDotSight = GetComponentInChildren<ADS>();
 
         currentSpeed = walkSpeed;
         originalHeight = controller.height;
         crouchHeight = originalHeight / 2f;
+        defaultMainCamFOV = mainCamera.fieldOfView;
     }
 
     private void Start()
     {
         playerCam.Initialized();
         headBob.Initialized(mainCamera.transform.localPosition);
+        throwableAssigned.Initialized(throwForce, throwSpawn);
+        throwableAssigned.gameObject.SetActive(false);
     }
 
     private void OnEnable()
@@ -74,6 +93,7 @@ public class PlayerController : MonoBehaviour
         gameInput.OnShootReleased += HandleShootReleased;
         gameInput.OnReloadPressed += HandleReloadPressed;
         gameInput.OnAimPressed += HandleAimPressed;
+        gameInput.OnThrown += HandleThrowPressed;
     }
 
     private void OnDisable()
@@ -86,6 +106,7 @@ public class PlayerController : MonoBehaviour
         gameInput.OnShootReleased -= HandleShootReleased;
         gameInput.OnReloadPressed -= HandleReloadPressed;
         gameInput.OnAimPressed -= HandleAimPressed;
+        gameInput.OnThrown -= HandleThrowPressed;
     }
 
     private void Update()
@@ -97,6 +118,7 @@ public class PlayerController : MonoBehaviour
         HandleCrouch();
         HandleHeadBob();
         HandleFullBodyAnimation();
+        HandleMainCameraFOV();
     }
 
     private void HandleVerticalVelocity()
@@ -143,14 +165,33 @@ public class PlayerController : MonoBehaviour
         bodyAnimations.HandleAnimations(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
     }
 
-    public void AssginGun(GunController gun)
+    private void HandleMainCameraFOV()
     {
-        gunAssigned = gun;
+        if (gunAssigned != null)
+        {
+            float targetFOV = isAiming ? gunAssigned.GunAiming.AimMainCamFOV : defaultMainCamFOV;
+            mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, targetFOV, smoothSpeed * Time.deltaTime);
+        }
+    }
+
+    public void CancelAimingIfNeeded()
+    {
         if (isAiming)
         {
             isAiming = !isAiming;
             gunAssigned.SetGunAiming(isAiming);
         }
+    }
+
+    public void AssginGun(GunController gun)
+    {
+        gunAssigned = gun;
+        CancelAimingIfNeeded();
+    }
+
+    public void StartThrowable()
+    {
+        throwableAssigned.gameObject.SetActive(true);
     }
 
     private void HandleJumpPressed()
@@ -194,7 +235,10 @@ public class PlayerController : MonoBehaviour
     private void HandleReloadPressed()
     {
         if (gunAssigned.GunActivated)
+        {
+            CancelAimingIfNeeded();
             gunAssigned.HandleReload();
+        }
     }
 
     private void HandleAimPressed()
@@ -203,6 +247,13 @@ public class PlayerController : MonoBehaviour
         {
             isAiming = !isAiming;
             gunAssigned.SetGunAiming(isAiming);
+            playerCam.HandleSniperAiming(isAiming && gunAssigned.IsSniper);
         }
+    }
+
+    private void HandleThrowPressed(ThrowableType throwableType)
+    {
+        if (throwableAssigned.TryToThrow(throwableType))
+            gunAssigned.PlayUnequipAnimation(false);
     }
 }

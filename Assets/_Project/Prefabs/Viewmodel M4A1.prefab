@@ -2191,7 +2191,7 @@ GameObject:
   - component: {fileID: 4555260352245357839}
   - component: {fileID: 7542214848328353431}
   m_Layer: 6
-  m_Name: Viewmodel M4A1
+  m_Name: ViewModel M4A1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2261,10 +2261,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4748545f51d8f164eb979f848ea3672a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunController
-  weaponRange: 100
+  weaponRange: 150
   fireRate: 0.2
-  spreadMultiplier: 1
-  hasRedDot: 1
+  bulletForce: 10
+  pelletPerShot: 1
+  pelletSpreadMultiplier: 1
+  hasScope: 1
+  isSniper: 0
   ignoreLayer:
     serializedVersion: 2
     m_Bits: 128
@@ -2276,9 +2279,10 @@ MonoBehaviour:
   isIncremental: 0
   isReloading: 0
   gunSource: {fileID: 7542214848328353431}
+  noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
   shootClip: {fileID: 8300000, guid: 0bb7daa66e166314eb6fc6c6db8fca35, type: 3}
   reloadClip: {fileID: 8300000, guid: f403143d6ab011b498f316cc1389825c, type: 3}
-  reloadLoop: {fileID: 0}
+  reloadLoopClip: {fileID: 0}
   reloadnEndClip: {fileID: 0}
   gunAnimations:
     gunAnimator: {fileID: 5094378657863967063}
@@ -2315,7 +2319,7 @@ MonoBehaviour:
     aimRecoilMultiplier: 0.25
   bulletTracer:
     bulletPrefab: {fileID: 6541497444962136807, guid: d1af02f20c0f7e04da4c3df41f22c0f7, type: 3}
-    moveSpeed: 100
+    moveSpeed: 300
     lifeTime: 2
     bulletHolder: {fileID: 0}
   surfaceHitEffect:
@@ -2359,10 +2363,22 @@ MonoBehaviour:
       hitSFX: {fileID: 8300000, guid: 3aec82f0738ac174bb8e01b596eac3f3, type: 3}
       volume: 1
   gunAiming:
-    aimPosition: {x: -0.072, y: 0.0095, z: -0.22}
+    aimPosition: {x: -0.072, y: 0.0095, z: -0.15}
     aimRotation: {x: 0, y: 0, z: 0}
     aimMainCamFOV: 45
     aimingSpeed: 10
+    mainCam: {fileID: 0}
+    scopeCam: {fileID: 0}
+    additionFOV: 10
+    magnification: 2
+    renderTexture: {fileID: 8400000, guid: 3004fa2acc7892f48b7e1588c364996f, type: 2}
+    renderer: {fileID: 4969458958892751404}
+    lensMaterialIndex: 3
+    scopeMat: {fileID: 2100000, guid: a443dc1bd28e5a843a8259fbbdf4f041, type: 2}
+    scopeTiling: {x: 0.5625, y: 1}
+    scopeOffset: {x: 0.21875, y: 0}
+    useScopeDebug: 0
+    lensAspectRatio: 1
   gunAccuracy:
     idleSpread: 0.35
     walkSpread: 1.5
@@ -2394,8 +2410,8 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 0
-  MinDistance: 1
-  MaxDistance: 50
+  MinDistance: 5
+  MaxDistance: 100
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0

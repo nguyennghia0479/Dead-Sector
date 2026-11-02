@@ -63,9 +63,15 @@ public class WeaponManager : MonoBehaviour
         GameObject dropGun = activeSlot;
         if (dropGun.TryGetComponent<GunController>(out var gun))
         {
-            Instantiate(gun.GunDropped, gunTransform.position, gunTransform.rotation);
-            Destroy(dropGun);
+            gun.SetGunAiming(false);
+            Instantiate(gun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
+            Destroy(dropGun, .1f);
         }
+    }
+
+    public void PickupThrowable(Throwable throwable, int amount)
+    {
+        player.ThrowableActivated.PicupThrowable(throwable, amount);
     }
 
     private void EquipItem(int index)
@@ -77,9 +83,9 @@ public class WeaponManager : MonoBehaviour
         }
 
         activeSlot = slots[index];
-        activeSlot.SetActive(true);
         if (activeSlot.TryGetComponent<GunController>(out var gun))
             player.AssginGun(gun);
+        activeSlot.SetActive(true);
     }
 
     private IEnumerator SwitchSlotRoutine(int index)

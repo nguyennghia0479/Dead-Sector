@@ -42,10 +42,10 @@ public class Crosshair : MonoBehaviour
         this.maxSpread = maxSpread;
     }
 
-    public void SetVisible(bool isAiming, bool hasRedDot)
+    public void SetVisible(bool isAiming, bool hasRedDot, bool isSniper)
     {
         if (crosshairRect != null)
-            crosshairRect.gameObject.SetActive(!isAiming);
+            crosshairRect.gameObject.SetActive(!isAiming && !isSniper);
 
         if (aimDot != null)
             aimDot.SetActive(isAiming && hasRedDot);

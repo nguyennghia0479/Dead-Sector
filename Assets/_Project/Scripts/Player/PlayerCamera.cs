@@ -7,13 +7,33 @@ public class PlayerCamera
     [SerializeField] private float mouseXSensitivity = 20f;
     [SerializeField] private float mouseYSensitivity = 20f;
     [SerializeField] private float angleClamp = 60f;
+    [SerializeField] private float sniperAimSenMultiplier = .25f;
 
+    private float originalMouseXSen;
+    private float originalMouseYSen;
     private float xRotation;
 
     public void Initialized()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        originalMouseXSen = mouseXSensitivity;
+        originalMouseYSen = mouseYSensitivity;
+    }
+
+    public void HandleSniperAiming(bool isSniperAiming)
+    {
+        if (isSniperAiming)
+        {
+            mouseXSensitivity *= sniperAimSenMultiplier;
+            mouseYSensitivity *= sniperAimSenMultiplier;
+        }
+        else
+        {
+            mouseXSensitivity = originalMouseXSen;
+            mouseYSensitivity = originalMouseYSen;
+        }
     }
 
     public void HandleRotation(Transform playerTransform, Transform playerCamera, GameInput gameInput, Vector3 cameraRecoilRotation)
