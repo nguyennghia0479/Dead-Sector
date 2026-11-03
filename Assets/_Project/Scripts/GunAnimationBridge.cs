@@ -9,6 +9,11 @@ public class GunAnimationBridge : MonoBehaviour
         gunController = GetComponent<GunController>();
     }
 
+    public void CallDrawGunSFX()
+    {
+        gunController.PlayDrawSFX();
+    }
+
     public void CallDrawGun()
     {
         gunController.SetGunActivated(true);

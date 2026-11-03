@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class WeaponManager : MonoBehaviour
 {
-    [SerializeField] private GameObject[] slots;
+    [SerializeField] private GunController[] slots;
     [SerializeField] private float switchTime = .5f;
-    [SerializeField] private GameObject activeSlot;
+    [SerializeField] private GunController activeSlot;
 
     private PlayerController player;
     private GameInput gameInput;
@@ -44,8 +44,8 @@ public class WeaponManager : MonoBehaviour
             if (slots[i] != activeSlot && slots[i] == null)
             {
                 newGun = Instantiate(gun, player.GunHolder);
-                slots[i] = newGun.gameObject;
-                slots[i].SetActive(false);
+                slots[i] = newGun;
+                slots[i].gameObject.SetActive(false);
                 StartCoroutine(SwitchSlotRoutine(i));
                 return;
             }
@@ -53,19 +53,19 @@ public class WeaponManager : MonoBehaviour
 
         DropActiveGun(pickupTransform);
         newGun = Instantiate(gun, player.GunHolder);
-        activeSlot = newGun.gameObject;
+        activeSlot = newGun;
         slots[currentIndex] = activeSlot;
         StartCoroutine(SwitchSlotRoutine(currentIndex));
     }
 
     private void DropActiveGun(Transform gunTransform)
     {
-        GameObject dropGun = activeSlot;
-        if (dropGun.TryGetComponent<GunController>(out var gun))
+        GunController dropGun = activeSlot;
+        if (dropGun != null)
         {
-            gun.SetGunAiming(false);
-            Instantiate(gun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
-            Destroy(dropGun, .1f);
+            dropGun.SetGunAiming(false);
+            Instantiate(dropGun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
+            Destroy(dropGun.gameObject, .1f);
         }
     }
 
@@ -79,25 +79,39 @@ public class WeaponManager : MonoBehaviour
         foreach (var slot in slots)
         {
             if (slot != null)
-                slot.SetActive(false);
+                slot.gameObject.SetActive(false);
         }
 
         activeSlot = slots[index];
         if (activeSlot.TryGetComponent<GunController>(out var gun))
             player.AssginGun(gun);
-        activeSlot.SetActive(true);
+        activeSlot.gameObject.SetActive(true);
+
+        UpdateGunsUI();
     }
 
     private IEnumerator SwitchSlotRoutine(int index)
     {
         isSwitching = true;
         if (activeSlot.TryGetComponent<GunController>(out var gun))
+        {
             gun.PlayUnequipAnimation();
+        }
 
         yield return waitTime;
         currentIndex = index;
         EquipItem(currentIndex);
         isSwitching = false;
+    }
+
+    private void UpdateGunsUI()
+    {
+        GunController primaryGun = slots[currentIndex];
+        GunController secondaryGun = slots[1 - currentIndex];
+
+        Sprite primaryIcon = primaryGun != null ? primaryGun.GunIcon : null;
+        Sprite secondaryIcon = secondaryGun != null ? secondaryGun.GunIcon : null;
+        GameEvents.RaiseWeaponSwitched(primaryIcon, secondaryIcon);
     }
 
     private void HandleSlotSelected(int index)

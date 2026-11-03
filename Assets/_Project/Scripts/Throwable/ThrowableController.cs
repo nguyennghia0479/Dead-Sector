@@ -23,6 +23,7 @@ public class ThrowableController : MonoBehaviour
             {
                 throwableData.amount += amount;
                 throwableData.amount = Mathf.Clamp(throwableData.amount, 0, throwable.MaxAmount);
+                UpdateThrowableAmountUI(throwableData);
                 return;
             }
         }
@@ -33,6 +34,7 @@ public class ThrowableController : MonoBehaviour
             amount = amount
         };
         throwableList.Add(newThrowable);
+        UpdateThrowableAmountUI(newThrowable);
     }
 
     public bool TryToThrow(ThrowableType throwableType)
@@ -49,6 +51,8 @@ public class ThrowableController : MonoBehaviour
     public void HandleThrown()
     {
         currentThrowable.amount--;
+        UpdateThrowableAmountUI(currentThrowable);
+
         Throwable newThrowable = Instantiate(currentThrowable.throwablePrefab, throwSpawn.position, Quaternion.identity);
         newThrowable.GetComponent<Rigidbody>().AddForce(throwForce * Camera.main.transform.forward, ForceMode.Impulse);
         newThrowable.HandleBeThorwn();
@@ -63,6 +67,11 @@ public class ThrowableController : MonoBehaviour
         gameObject.SetActive(false);
         GunController gun = GetComponentInParent<PlayerController>().GunActivated;
         gun.gameObject.SetActive(true);
+    }
+
+    private void UpdateThrowableAmountUI(ThrowableData throwableData)
+    {
+        GameEvents.RaiseThrowableAmountChanged(throwableData.throwablePrefab.ThrowableType, throwableData.amount);
     }
 }
 

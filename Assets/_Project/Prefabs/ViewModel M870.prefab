@@ -482,12 +482,15 @@ MonoBehaviour:
     m_Bits: 128
   muzzleFlash: {fileID: 7125264008388562836}
   gunDrop: {fileID: 5531797214635404002, guid: 34ccefbd050006e47a0fb24cadd3efc2, type: 3}
+  gunIcon: {fileID: 21300000, guid: c5440bcc63a7dad4a9413a28d1978be2, type: 3}
   totalAmmos: 32
   maxAmmo: 8
   currentAmmos: 0
   isIncremental: 1
   isReloading: 0
   gunSource: {fileID: 4038287226893164532}
+  drawClip: {fileID: 8300000, guid: 041a380611a93c84a922e4129041761d, type: 3}
+  hideClip: {fileID: 8300000, guid: 9076ce41652ae104996141c0fa757773, type: 3}
   noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
   shootClip: {fileID: 8300000, guid: a53a4dd0a72989b4094f57d735f6e536, type: 3}
   reloadClip: {fileID: 0}

@@ -187,7 +187,6 @@ MonoBehaviour:
   explosionClip: {fileID: 8300000, guid: a7727c27165b48a46b07b880438326fc, type: 3}
   bounceClip: {fileID: 8300000, guid: d4d32d2ba54a0924ba73e9a6474f36c9, type: 3}
   bounceCooldown: 0.15
-  burnEffect: {fileID: 978926504510914047, guid: 052651b033b6cb141a0dee8b56cf46ad, type: 3}
 --- !u!54 &70516700373591160
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -260,7 +259,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 0
   MinDistance: 2
-  MaxDistance: 60
+  MaxDistance: 80
   Pan2D: 1
   rolloffMode: 0
   BypassEffects: 0
