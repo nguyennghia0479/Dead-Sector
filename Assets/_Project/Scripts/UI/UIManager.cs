@@ -4,6 +4,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
+    [SerializeField] private HUD hud;
     [SerializeField] private Crosshair crosshair;
     [SerializeField] private InteractionUI interactionUI;
     [SerializeField] private GameObject sniperImage;

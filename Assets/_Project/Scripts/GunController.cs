@@ -13,6 +13,7 @@ public class GunController : MonoBehaviour
     [SerializeField] private LayerMask ignoreLayer;
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
     [SerializeField] private GunInteraction gunDrop;
+    [SerializeField] private Sprite gunIcon;
     private float nextFireTimer;
 
     [Header("Ammo Settings")]
@@ -24,6 +25,8 @@ public class GunController : MonoBehaviour
 
     [Header("Audio Settings")]
     [SerializeField] private AudioSource gunSource;
+    [SerializeField] private AudioClip drawClip;
+    [SerializeField] private AudioClip hideClip;
     [SerializeField] private AudioClip noAmmoClip;
     [SerializeField] private AudioClip shootClip;
     [SerializeField] private AudioClip reloadClip;
@@ -53,6 +56,7 @@ public class GunController : MonoBehaviour
     public GunAiming GunAiming => gunAiming;
     public PlayerController Player => player;
     public bool IsSniper => isSniper;
+    public Sprite GunIcon => gunIcon;
 
     private void Awake()
     {
@@ -60,6 +64,11 @@ public class GunController : MonoBehaviour
         gameInput = player.GameInput;
         mainCamera = Camera.main;
         currentAmmos = maxAmmo;
+    }
+
+    private void OnEnable()
+    {
+        UpdateAmmosUI();
     }
 
     private void Start()
@@ -70,7 +79,6 @@ public class GunController : MonoBehaviour
         surfaceHitEffect.Initialized();
         gunAiming.Initialized(player.ADS.DefaultPosition, player.ADS.DefaultRotation, player.DefaultMainCamFOV);
         gunAccuracy.Initialized();
-
         if (hasScope)
             gunAiming.InitializedScope(mainCamera, player.ScopeCamera.Camera);
     }
@@ -133,6 +141,7 @@ public class GunController : MonoBehaviour
         cameraRecoil.ApplyRecoil(isAiming);
         gunRecoil.ApplyRecoil(isAiming);
         gunAccuracy.ApplyBloom(isAiming);
+        UpdateAmmosUI();
 
         for (int i = 0; i < pelletPerShot; i++)
             ShootPellet();
@@ -176,6 +185,7 @@ public class GunController : MonoBehaviour
 
             currentAmmos += ammosToReload;
             totalAmmos -= ammosToReload;
+            UpdateAmmosUI();
         }
         isReloading = false;
     }
@@ -194,6 +204,7 @@ public class GunController : MonoBehaviour
             PlayGunReloadSFX(reloadnEndClip);
             gunAnimations.PlayReloadFinishedAnimation();
         }
+        UpdateAmmosUI();
     }
 
     public void PlayReloadLoopSound()
@@ -240,11 +251,29 @@ public class GunController : MonoBehaviour
             UIManager.Instance.UpdateCrosshair(gunAccuracy.CurrentSpread, gunAccuracy.MinSpread, gunAccuracy.MaxSpread);
     }
 
+    private void UpdateAmmosUI()
+    {
+        GameEvents.RaiseAmmosChanged(currentAmmos, totalAmmos);
+    }
+
     public void PlayUnequipAnimation(bool isSwitchGun = true)
     {
+        PlayHideSFX();
         gunAnimations.PlayUnequipAnimation(isSwitchGun);
         if (isAiming)
             isAiming = false;
+    }
+
+    public void PlayDrawSFX()
+    {
+        if (gunSource && drawClip)
+            gunSource.PlayOneShot(drawClip);
+    }
+
+    public void PlayHideSFX()
+    {
+        if (gunSource && hideClip)
+            gunSource.PlayOneShot(hideClip);
     }
 
     private void PlayGunShootSFX()
