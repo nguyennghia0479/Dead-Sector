@@ -29,6 +29,7 @@ public class UIManager : MonoBehaviour
     public void InteractionInitialized(PlayerInteraction playerInteraction)
     {
         interactionUI.Initialized(playerInteraction);
+        hud.Initialized(playerInteraction.GameInput);
     }
 
     public void SetSniperVisible(bool isVisible) => sniperImage.SetActive(isVisible);

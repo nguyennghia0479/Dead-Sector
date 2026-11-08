@@ -1,9 +1,11 @@
+using System.Collections;
 using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
     [Header("Gun Settings")]
-    [SerializeField] private float weaponRange = 100f;
+    [SerializeField] private int gunDamage = 10;
+    [SerializeField] private float gunRange = 100f;
     [SerializeField] private float fireRate = .2f;
     [SerializeField] private float bulletForce = 10f;
     [SerializeField] private int pelletPerShot = 1;
@@ -14,11 +16,13 @@ public class GunController : MonoBehaviour
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
     [SerializeField] private GunInteraction gunDrop;
     [SerializeField] private Sprite gunIcon;
+    [SerializeField] private float hitDelay = .15f;
     private float nextFireTimer;
+    private WaitForSeconds hitWaitTime;
 
     [Header("Ammo Settings")]
     [SerializeField] private int totalAmmos;
-    [SerializeField] private int maxAmmo;
+    [SerializeField] private int maxAmmos;
     [SerializeField] private int currentAmmos;
     [SerializeField] private bool isIncremental;
     [SerializeField] private bool isReloading;
@@ -50,6 +54,9 @@ public class GunController : MonoBehaviour
     private bool isShooting;
     private bool isAiming;
 
+    public int CurrentAmmos => currentAmmos;
+    public int MaxAmmos => maxAmmos;
+    public int TotalAmmos => totalAmmos;
     public bool GunActivated => gunActivated;
     public GunInteraction GunDropped => gunDrop;
     public GunAnimations GunAnimations => gunAnimations;
@@ -63,7 +70,8 @@ public class GunController : MonoBehaviour
         player = GetComponentInParent<PlayerController>();
         gameInput = player.GameInput;
         mainCamera = Camera.main;
-        currentAmmos = maxAmmo;
+        currentAmmos = maxAmmos;
+        hitWaitTime = new WaitForSeconds(hitDelay);
     }
 
     private void OnEnable()
@@ -77,7 +85,7 @@ public class GunController : MonoBehaviour
         gunSway.Initialized(gameInput, transform.localPosition);
         gunRecoil.Initialized(transform.localPosition, transform.localRotation);
         surfaceHitEffect.Initialized();
-        gunAiming.Initialized(player.ADS.DefaultPosition, player.ADS.DefaultRotation, player.DefaultMainCamFOV);
+        gunAiming.Initialized(player.ADS.DefaultPosition, player.ADS.DefaultRotation);
         gunAccuracy.Initialized();
         if (hasScope)
             gunAiming.InitializedScope(mainCamera, player.ScopeCamera.Camera);
@@ -151,24 +159,34 @@ public class GunController : MonoBehaviour
     {
         Vector3 shotDirection = gunAccuracy.GetDirection(mainCamera.transform, pelletSpreadMultiplier);
         Ray ray = new(mainCamera.transform.position, shotDirection);
-        if (Physics.Raycast(ray, out RaycastHit hit, weaponRange, ~ignoreLayer))
+        if (Physics.Raycast(ray, out RaycastHit hit, gunRange, ~ignoreLayer))
         {
-            Debug.Log(hit.collider.gameObject.name);
             bulletTracer.ApplyTracer(muzzleFlash.transform.position, hit.point);
-            surfaceHitEffect.ApplyHitEffect(hit);
-
-            if (hit.collider.TryGetComponent<Rigidbody>(out var rb))
-                rb.AddForce(-hit.normal * bulletForce);
+            StartCoroutine(BulletHitRoutine(hit));
         }
         else
+            bulletTracer.ApplyTracer(muzzleFlash.transform.position, ray.origin + ray.direction * gunRange);
+    }
+
+    private IEnumerator BulletHitRoutine(RaycastHit hit)
+    {
+        yield return hitWaitTime;
+
+        if (hit.collider.CompareTag("Enemy"))
         {
-            bulletTracer.ApplyTracer(muzzleFlash.transform.position, ray.origin + ray.direction * weaponRange);
+            if (hit.collider.TryGetComponent<Enemy>(out var enemy))
+                enemy.TakeHit(-hit.normal, bulletForce, gunDamage);
         }
+
+        if (hit.collider.TryGetComponent<Rigidbody>(out var rb))
+            rb.AddForce(-hit.normal * bulletForce, ForceMode.Impulse);
+
+        surfaceHitEffect.ApplyHitEffect(hit);
     }
 
     public void HandleReload()
     {
-        if (isReloading || totalAmmos <= 0 || currentAmmos == maxAmmo) return;
+        if (isReloading || totalAmmos <= 0 || currentAmmos == maxAmmos) return;
 
         player.CancelAimingIfNeeded();
         isReloading = true;
@@ -180,7 +198,7 @@ public class GunController : MonoBehaviour
     {
         if (!isIncremental)
         {
-            int ammosNeeded = maxAmmo - currentAmmos;
+            int ammosNeeded = maxAmmos - currentAmmos;
             int ammosToReload = Mathf.Min(ammosNeeded, totalAmmos);
 
             currentAmmos += ammosToReload;
@@ -194,7 +212,7 @@ public class GunController : MonoBehaviour
     {
         currentAmmos++;
         totalAmmos--;
-        int ammosToReload = maxAmmo - currentAmmos;
+        int ammosToReload = maxAmmos - currentAmmos;
         if (ammosToReload > 0)
         {
             gunAnimations.PlayReloadLoopAnimation();
@@ -230,7 +248,7 @@ public class GunController : MonoBehaviour
     private void HandleGunAiming()
     {
         UIManager.Instance.SetCrosshairVisible(isAiming, hasScope, isSniper);
-        gunAiming.ApplyAiming(transform.parent, mainCamera, isAiming);
+        gunAiming.ApplyAiming(transform.parent, isAiming);
         if (isSniper)
             UIManager.Instance.SetSniperVisible(isAiming);
     }
@@ -253,7 +271,7 @@ public class GunController : MonoBehaviour
 
     private void UpdateAmmosUI()
     {
-        GameEvents.RaiseAmmosChanged(currentAmmos, totalAmmos);
+        GameEvents.RaiseAmmosChanged(currentAmmos, totalAmmos, maxAmmos);
     }
 
     public void PlayUnequipAnimation(bool isSwitchGun = true)
@@ -292,6 +310,13 @@ public class GunController : MonoBehaviour
     {
         if (gunSource && clip)
             gunSource.PlayOneShot(clip);
+    }
+
+    public void SetAmmos(int currentAmmos, int totalAmmos)
+    {
+        this.currentAmmos = currentAmmos;
+        this.totalAmmos = totalAmmos;
+        UpdateAmmosUI();
     }
 
     public void SetGunActivated(bool activeStatus) => gunActivated = activeStatus;

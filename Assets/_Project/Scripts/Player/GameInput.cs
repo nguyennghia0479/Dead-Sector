@@ -109,4 +109,5 @@ public class GameInput : MonoBehaviour
     }
 
     public string InteractionBindingDisplay => player.Interaction.GetBindingDisplayString();
+    public string ReloadBindingDisplay => player.Reload.GetBindingDisplayString();
 }

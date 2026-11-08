@@ -6906,7 +6906,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4748545f51d8f164eb979f848ea3672a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunController
-  weaponRange: 150
+  gunDamage: 10
+  gunRange: 100
   fireRate: 0.2
   bulletForce: 10
   pelletPerShot: 1
@@ -6919,8 +6920,9 @@ MonoBehaviour:
   muzzleFlash: {fileID: 4307771993083626349}
   gunDrop: {fileID: 9026381826743856282, guid: eabe37934ef62674caa27db89524af9b, type: 3}
   gunIcon: {fileID: 21300000, guid: 5deddad7ee0748041ac5e8908154402d, type: 3}
-  totalAmmos: 50
-  maxAmmo: 30
+  hitDelay: 0.15
+  totalAmmos: 90
+  maxAmmos: 30
   currentAmmos: 0
   isIncremental: 0
   isReloading: 0
@@ -7000,7 +7002,7 @@ MonoBehaviour:
       - {fileID: 13400000, guid: 8203a6d72cd21a64894bbef02507a7a4, type: 2}
       tags:
       - Enemy
-      hitVFX: {fileID: 295026904903343069, guid: 279be4437ac6c32428ff7f4abbb32ccb, type: 3}
+      hitVFX: {fileID: 723128403654289039, guid: 0f9432862f1d90a41a71eaf6b185a751, type: 3}
       hitSFX: {fileID: 8300000, guid: 89751fdc7aca61946b8f7adbbbcd2219, type: 3}
       volume: 1
     - physicsMaterials:
@@ -7017,7 +7019,7 @@ MonoBehaviour:
     aimingSpeed: 10
     mainCam: {fileID: 0}
     scopeCam: {fileID: 0}
-    additionFOV: 18
+    additionFOV: 0
     magnification: 1
     renderTexture: {fileID: 8400000, guid: 3004fa2acc7892f48b7e1588c364996f, type: 2}
     renderer: {fileID: 513056766981173240}

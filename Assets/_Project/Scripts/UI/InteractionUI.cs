@@ -6,6 +6,7 @@ public class InteractionUI : MonoBehaviour
 {
     [SerializeField] private GameObject interactionPanel;
     [SerializeField] private Image holdProgressFill;
+    [SerializeField] private TMP_Text interactKeyText;
     [SerializeField] private TMP_Text interactionText;
 
     private string keyText;
@@ -40,8 +41,7 @@ public class InteractionUI : MonoBehaviour
     public void Initialized(PlayerInteraction playerInteraction)
     {
         this.playerInteraction = playerInteraction;
-        string bindingText = playerInteraction.GameInput.InteractionBindingDisplay;
-        keyText = $"[{bindingText}]";
+        interactKeyText.text = playerInteraction.GameInput.InteractionBindingDisplay;
         playerInteraction.OnInteractableChanged += HandleInteractableChanged;
     }
 
@@ -51,9 +51,7 @@ public class InteractionUI : MonoBehaviour
             return;
 
         if (interactionPanel.activeInHierarchy)
-        {
             holdProgressFill.fillAmount = playerInteraction.GetHoldProgress();
-        }
     }
 
     private void HandleInteractableChanged(IInteractable interactable)
@@ -63,14 +61,11 @@ public class InteractionUI : MonoBehaviour
 
         interactionPanel.SetActive(canShow);
         if (!canShow)
-        {
-            //holdProgressFill.fillAmount = 0;
             return;
-        }
 
         holdProgressFill.fillAmount = 0;
         interactionText.text = interactable.IsHoldInteract
-            ? $"Hold {keyText} {interactable.PromptName}"
-            : $"{keyText} {interactable.PromptName}";
+            ? $"Hold to {interactable.PromptName}"
+            : $"{interactable.PromptName}";
     }
 }

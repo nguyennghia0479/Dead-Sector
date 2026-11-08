@@ -236,12 +236,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 321cedc66aae99948811e947bb6c8bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunInteraction
-  gunPrefab: {fileID: 1782458673767181581, guid: de78da808e3fa704fa4e410fd4ceccaf, type: 3}
   pickupName: Pickup M870
   canInteract: 1
   isHoldInteract: 0
   holdDuration: 2
   highlightMat: {fileID: 2100000, guid: 78f2b433c321ce04282a3ddef6ae7815, type: 2}
+  gunPrefab: {fileID: 1782458673767181581, guid: de78da808e3fa704fa4e410fd4ceccaf, type: 3}
+  currentAmmos: 0
+  totalAmmos: 0
 --- !u!65 &784012488553387932
 BoxCollider:
   m_ObjectHideFlags: 0
