@@ -21,7 +21,7 @@ public class Interaction : MonoBehaviour, IInteractable
 
     public float HoldDuration => holdDuration;
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         gunRenderers = GetComponentsInChildren<Renderer>();
         cachedOriginalMats = new Material[gunRenderers.Length][];

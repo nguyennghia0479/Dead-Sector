@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private PlayerCamera playerCam;
     [SerializeField] private HeadBob headBob;
     [SerializeField] private FullBodyAnimations bodyAnimations;
+    [SerializeField] private PlayerFootsteps footsteps;
 
     private CharacterController controller;
     private WeaponManager weaponManager;
@@ -58,7 +59,6 @@ public class PlayerController : MonoBehaviour
     public ScopeCamera ScopeCamera => scopeCamera;
     public ADS ADS => aimDotSight;
     public Transform GunHolder => gunHolder;
-    public float DefaultMainCamFOV => defaultMainCamFOV;
 
     private void Awake()
     {
@@ -119,6 +119,8 @@ public class PlayerController : MonoBehaviour
         HandleHeadBob();
         HandleFullBodyAnimation();
         HandleMainCameraFOV();
+        HandleFootstepsSFX();
+        HandleLandingSFX();
     }
 
     private void HandleVerticalVelocity()
@@ -138,7 +140,9 @@ public class PlayerController : MonoBehaviour
         Vector3 movement = transform.right * moveInput.x + transform.forward * moveInput.y;
         Vector3 finalMove = currentSpeed * movement + playerVelocity.y * Vector3.up;
 
-        isMoving = controller.velocity.magnitude > .1f;
+        Vector3 velocity = controller.velocity;
+        velocity.y = 0f;
+        isMoving = velocity.magnitude > .1f;
         controller.Move(finalMove * Time.deltaTime);
     }
 
@@ -165,6 +169,16 @@ public class PlayerController : MonoBehaviour
         bodyAnimations.HandleAnimations(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
     }
 
+    private void HandleFootstepsSFX()
+    {
+        footsteps.HandleFootsteps(isMoving, isSprinting, isCrouching, isGrounded);
+    }
+
+    private void HandleLandingSFX()
+    {
+        footsteps.HandleLanding(isGrounded);
+    }
+
     private void HandleMainCameraFOV()
     {
         if (gunAssigned != null)
@@ -187,6 +201,7 @@ public class PlayerController : MonoBehaviour
     {
         gunAssigned = gun;
         CancelAimingIfNeeded();
+        playerCam.HandleSniperAiming(isAiming && gunAssigned.IsSniper);
     }
 
     public void StartThrowable()

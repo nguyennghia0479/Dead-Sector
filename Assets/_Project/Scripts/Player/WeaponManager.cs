@@ -36,7 +36,7 @@ public class WeaponManager : MonoBehaviour
         EquipItem(currentIndex);
     }
 
-    public void PickupGun(GunController gun, Transform pickupTransform)
+    public void PickupGun(GunController gun, Transform pickupTransform, int currentAmmos, int totalAmmos)
     {
         GunController newGun;
         for (int i = 0; i < slots.Length; i++)
@@ -53,6 +53,7 @@ public class WeaponManager : MonoBehaviour
 
         DropActiveGun(pickupTransform);
         newGun = Instantiate(gun, player.GunHolder);
+        newGun.SetAmmos(currentAmmos, totalAmmos);
         activeSlot = newGun;
         slots[currentIndex] = activeSlot;
         StartCoroutine(SwitchSlotRoutine(currentIndex));
@@ -64,7 +65,8 @@ public class WeaponManager : MonoBehaviour
         if (dropGun != null)
         {
             dropGun.SetGunAiming(false);
-            Instantiate(dropGun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
+            GunInteraction newGunPickup = Instantiate(dropGun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
+            newGunPickup.SetAmmos(dropGun.CurrentAmmos, dropGun.TotalAmmos);
             Destroy(dropGun.gameObject, .1f);
         }
     }

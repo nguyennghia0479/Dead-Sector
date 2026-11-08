@@ -52,6 +52,7 @@ public class SurfaceHitEffect
         if (hitVFX != null)
         {
             GameObject newHitImpact = Object.Instantiate(hitVFX, hit.point, Quaternion.LookRotation(hit.normal));
+            newHitImpact.transform.parent = hit.transform;
             Object.Destroy(newHitImpact, lifeTime);
         }
 

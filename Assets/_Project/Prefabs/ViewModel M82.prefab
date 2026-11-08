@@ -6980,7 +6980,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4748545f51d8f164eb979f848ea3672a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunController
-  weaponRange: 200
+  gunDamage: 10
+  gunRange: 100
   fireRate: 0.7
   bulletForce: 15
   pelletPerShot: 1
@@ -6993,8 +6994,9 @@ MonoBehaviour:
   muzzleFlash: {fileID: 5980770501607430330}
   gunDrop: {fileID: 169368663636054219, guid: 40881fbb9a033d247a04ff22928acb72, type: 3}
   gunIcon: {fileID: 21300000, guid: f8c8b9edabfcc0e47ac88dc73f91b520, type: 3}
-  totalAmmos: 50
-  maxAmmo: 10
+  hitDelay: 0.15
+  totalAmmos: 30
+  maxAmmos: 10
   currentAmmos: 0
   isIncremental: 0
   isReloading: 0
@@ -7074,7 +7076,7 @@ MonoBehaviour:
       - {fileID: 13400000, guid: 8203a6d72cd21a64894bbef02507a7a4, type: 2}
       tags:
       - Enemy
-      hitVFX: {fileID: 295026904903343069, guid: 279be4437ac6c32428ff7f4abbb32ccb, type: 3}
+      hitVFX: {fileID: 723128403654289039, guid: 0f9432862f1d90a41a71eaf6b185a751, type: 3}
       hitSFX: {fileID: 8300000, guid: 89751fdc7aca61946b8f7adbbbcd2219, type: 3}
       volume: 1
     - physicsMaterials:
@@ -7105,7 +7107,7 @@ MonoBehaviour:
     idleSpread: 0.35
     walkSpread: 1.5
     sprintSpread: 3
-    aimSpread: 0.1
+    aimSpread: 0.02
     spreadChangeSpeed: 12
     spreadReturnSpeed: 2.5
     shotPerSpread: 0.35
