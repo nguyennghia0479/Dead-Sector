@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 public class EnemyState
 {
-    protected Enemy enemy;
+    protected EnemyController enemy;
     protected StateMachine stateMachine;
     protected string boolHash;
     protected Animator animator;
@@ -12,7 +12,7 @@ public class EnemyState
     protected float stateTimer;
     protected bool triggerCalled;
 
-    public EnemyState(Enemy enemy, StateMachine stateMachine,  string boolHash)
+    public EnemyState(EnemyController enemy, StateMachine stateMachine,  string boolHash)
     {
         this.enemy = enemy;
         this.stateMachine = stateMachine;

@@ -5426,3 +5426,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireEffect
   burnEffect: {fileID: 978926504510914047, guid: 052651b033b6cb141a0dee8b56cf46ad, type: 3}
+  burnDamageInterval: 0.45
+  hitLayer:
+    serializedVersion: 2
+    m_Bits: 640

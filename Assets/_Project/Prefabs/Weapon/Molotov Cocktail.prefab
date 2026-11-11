@@ -177,16 +177,18 @@ MonoBehaviour:
   throwableType: 1
   hitLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 640
   explosionEffect: {fileID: 3271109810909596824, guid: e9191c3a1ee7b644e8b006e0038769fb, type: 3}
-  explosionRadius: 10
+  explosionDamage: 25
+  explosionRadius: 5
   delay: 3
-  explosiveForce: 50
+  explosionForce: 100
   upwardsModifier: 0
   maxAmount: 4
   explosionClip: {fileID: 8300000, guid: a7727c27165b48a46b07b880438326fc, type: 3}
   bounceClip: {fileID: 8300000, guid: d4d32d2ba54a0924ba73e9a6474f36c9, type: 3}
   bounceCooldown: 0.15
+  burnDamagePercentage: 0.25
 --- !u!54 &70516700373591160
 Rigidbody:
   m_ObjectHideFlags: 0

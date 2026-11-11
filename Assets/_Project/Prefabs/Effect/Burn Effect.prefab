@@ -2619,6 +2619,7 @@ GameObject:
   - component: {fileID: 978926504510914047}
   - component: {fileID: 4379399007514007914}
   - component: {fileID: 2298877156611043102}
+  - component: {fileID: 6535741888065453543}
   m_Layer: 0
   m_Name: Burn Effect
   m_TagString: Untagged
@@ -5292,3 +5293,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   OnlyDeactivate: 0
+--- !u!114 &6535741888065453543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5983463292904763437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fccd27bdfcd33046ad7b5b79385bd92, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BurnEffect

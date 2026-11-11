@@ -2,21 +2,24 @@ using UnityEngine;
 
 public class EnemyIdleState : EnemyState
 {
-    private float idleTime = 1f;
-
-    public EnemyIdleState(Enemy enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
+    public EnemyIdleState(EnemyController enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
     {
     }
 
     public override void Enter()
     {
         base.Enter();
-        stateTimer = idleTime;
+
+        stateTimer = enemy.IdleDuration;
+        agent.isStopped = true;
     }
 
     public override void Update()
     {
         base.Update();
+
+        if (enemy.Player.PlayerHealth.IsDeath)
+            return;
 
         if (stateTimer <= 0)
             stateMachine.ChangeState(enemy.WalkState);
@@ -25,5 +28,7 @@ public class EnemyIdleState : EnemyState
     public override void Exit()
     {
         base.Exit();
+
+        agent.isStopped = false;
     }
 }

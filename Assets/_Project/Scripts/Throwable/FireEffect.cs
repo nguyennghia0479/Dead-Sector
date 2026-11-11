@@ -3,9 +3,13 @@ using UnityEngine;
 public class FireEffect : MonoBehaviour
 {
     [SerializeField] private ParticleSystem burnEffect;
+    [SerializeField] private float burnDamageInterval = .45f;
+    [SerializeField] private LayerMask hitLayer;
 
     private void OnTriggerEnter(Collider other)
     {
+        if ((hitLayer.value & (1 << other.gameObject.layer)) == 0) return;
+
         int burnAmount = GetRandomBurnAmount(other);
         for (int j = 0; j < burnAmount; j++)
         {
@@ -13,6 +17,9 @@ public class FireEffect : MonoBehaviour
             Quaternion burnRotation = Quaternion.Euler(0, Random.Range(0, 360f), 0);
             Instantiate(burnEffect, burnPosition, burnRotation, other.transform);
         }
+
+        if (other.TryGetComponent<IDamageable>(out var damageable))
+            damageable.ApplyBurnHit(burnEffect.main.duration, burnDamageInterval);
     }
 
     public int GetRandomBurnAmount(Collider hit)

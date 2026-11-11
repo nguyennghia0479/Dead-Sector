@@ -1,13 +1,16 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Enemy : MonoBehaviour
+public class EnemyController : EntityController
 {
     [Header("State Settings")]
+    [SerializeField] private float idleDuration = 1f;
     [SerializeField] private float walkSpeed = 1.5f;
     [SerializeField] private float chaseDistance = 10f;
     [SerializeField] private float chaseSpeed = 4f;
-    [SerializeField] private float attackDistance = 1.2f;
+    [SerializeField] private float attackDistance = 1.4f;
+    [SerializeField] private int attackDamage = 10;
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackMultiplier = .15f;
@@ -20,11 +23,13 @@ public class Enemy : MonoBehaviour
     private Vector3 knockbackVelocity;
     private Animator animator;
     private NavMeshAgent agent;
+    private Rigidbody rb;
     private Collider collider;
     private StateMachine stateMachine;
     private PlayerController player;
     private bool isPlayHitAnimation;
 
+    public float IdleDuration => idleDuration;
     public float WalkSpeed => walkSpeed;
     public float ChaseDistance => chaseDistance;
     public float ChaseSpeed => chaseSpeed;
@@ -40,13 +45,14 @@ public class Enemy : MonoBehaviour
     public EnemyAttackState AttackState { get; private set; }
 
     private static readonly int HitHash = Animator.StringToHash("hit");
-    private static readonly int Death_1Hash = Animator.StringToHash("death_1");
-    private static readonly int Death_2Hash = Animator.StringToHash("death_2");
+    private static readonly int DeathHash_1 = Animator.StringToHash("death_1");
+    private static readonly int DeathHash_2 = Animator.StringToHash("death_2");
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody>();
         collider = GetComponent<Collider>();
         GameObject playerObject = GameObject.FindWithTag("Player");
         player = playerObject.GetComponent<PlayerController>();
@@ -60,18 +66,19 @@ public class Enemy : MonoBehaviour
 
     private void OnEnable()
     {
-        enemyHealth.OnDeath += HandleOnDeath;
+        GameEvents.OnEnemyDeath += HandleEnemyDeath;
     }
 
     private void OnDisable()
     {
-        enemyHealth.OnDeath -= HandleOnDeath;
+        GameEvents.OnEnemyDeath -= HandleEnemyDeath;
     }
 
     private void Start()
     {
         stateMachine.Initialized(IdleState);
-        enemyHealth.Initialzied();
+        enemyHealth.Initialzied(this);
+        Initialized(enemyHealth);
     }
 
     private void Update()
@@ -81,6 +88,39 @@ public class Enemy : MonoBehaviour
         stateMachine.CurrentStateUpdate();
         HandleDistanceToPlayer();
         HandleKnockback();
+        HandleBurnHit();
+    }
+
+    public override void TakeGrenadeHit(int explosionDamage, float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
+    {
+        base.TakeGrenadeHit(explosionDamage, explosionForce, explosionPosition, explosionRadius, upwardsModifier);
+        ApplyGrenadeHit(explosionForce, explosionPosition, explosionRadius, upwardsModifier);
+    }
+
+    private void ApplyGrenadeHit(float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
+    {
+        if (isHitByGrenade) return;
+
+        isHitByGrenade = true;
+        agent.enabled = false;
+        rb.isKinematic = false;
+        rb.AddExplosionForce(explosionForce, explosionPosition, explosionRadius, upwardsModifier, ForceMode.Impulse);
+        StartCoroutine(RecoverFromGrenadeExplodeRoutine());
+    }
+
+    private IEnumerator RecoverFromGrenadeExplodeRoutine()
+    {
+        yield return recoverWaitTime;
+        isHitByGrenade = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.isKinematic = true;
+        
+        if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3f, NavMesh.AllAreas))
+        {
+            agent.enabled = true;
+            agent.Warp(hit.position);
+        }
     }
 
     public void TakeHit(Vector3 direction, float force, int gunDamage)
@@ -145,16 +185,19 @@ public class Enemy : MonoBehaviour
         distanceToPlayer = Vector3.Distance(agent.transform.position, player.transform.position);
     }
 
-    private void HandleOnDeath()
+    private void HandleEnemyDeath(EnemyController enemy)
     {
+        if (enemy != this) return;
+
+        stateMachine.StopStateMachine();
         animator.ResetTrigger(HitHash);
         agent.enabled = false;
         collider.enabled = false;
 
         if (Random.Range(0, 2) == 0)
-            animator.SetTrigger(Death_1Hash);
+            animator.SetTrigger(DeathHash_1);
         else
-            animator.SetTrigger(Death_2Hash);
+            animator.SetTrigger(DeathHash_2);
 
         float delayTime = 10f;
         Destroy(gameObject, delayTime);

@@ -470,7 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4748545f51d8f164eb979f848ea3672a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunController
-  gunDamage: 10
+  gunDamage: 20
   gunRange: 100
   fireRate: 1
   bulletForce: 2.5

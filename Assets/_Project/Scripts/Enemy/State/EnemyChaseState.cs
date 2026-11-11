@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyChaseState : EnemyState
 {
-    public EnemyChaseState(Enemy enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
+    public EnemyChaseState(EnemyController enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
     {
     }
 
@@ -17,6 +17,9 @@ public class EnemyChaseState : EnemyState
     public override void Update()
     {
         base.Update();
+
+        if (enemy.Player.PlayerHealth.IsDeath)
+            stateMachine.ChangeState(enemy.IdleState);
 
         //enemy.transform.LookAt(targetTransform);
         enemy.HandleLookToPlayer();

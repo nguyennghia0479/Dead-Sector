@@ -19,6 +19,16 @@ public class UIManager : MonoBehaviour
         sniperImage.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        GameEvents.OnPlayerDeath += HandlePlayerDeath;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
+    }
+
     public void UpdateCrosshair(float currentSpread, float minSpread, float maxSpread)
     {
         crosshair.UpdateCrosshair(currentSpread, minSpread, maxSpread);
@@ -29,8 +39,18 @@ public class UIManager : MonoBehaviour
     public void InteractionInitialized(PlayerInteraction playerInteraction)
     {
         interactionUI.Initialized(playerInteraction);
-        hud.Initialized(playerInteraction.GameInput);
     }
 
     public void SetSniperVisible(bool isVisible) => sniperImage.SetActive(isVisible);
+
+    public void HUDInitialzied(PlayerController player)
+    {
+        hud.Initialized(player);
+    }
+
+    private void HandlePlayerDeath()
+    {
+        if (sniperImage.activeInHierarchy)
+            sniperImage.SetActive(false);
+    }
 }

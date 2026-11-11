@@ -11,9 +11,10 @@ public class Throwable : MonoBehaviour
     [SerializeField] protected ThrowableType throwableType;
     [SerializeField] protected LayerMask hitLayer;
     [SerializeField] protected ParticleSystem explosionEffect;
+    [SerializeField] protected int explosionDamage = 100;
     [SerializeField] protected float explosionRadius = 10f;
     [SerializeField] protected float delay = 3f;
-    [SerializeField] protected float explosiveForce = 100f;
+    [SerializeField] protected float explosionForce = 100f;
     [SerializeField] protected float upwardsModifier = 3f;
     [SerializeField] protected int maxAmount = 4;
 
@@ -32,7 +33,7 @@ public class Throwable : MonoBehaviour
     public ThrowableType ThrowableType => throwableType;
     public int MaxAmount => maxAmount;
 
-    protected void Awake()
+    protected virtual void Awake()
     {
         throwableSource = GetComponent<AudioSource>();
 

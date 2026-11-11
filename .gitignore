@@ -15,3 +15,6 @@ ExportedObj/
 *.unityproj
 *.csproj
 *.sln
+
+# Ignore Mixamo Zombie Model
+/Assets/Plugins/Mixamo/Zombie/Model/

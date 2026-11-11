@@ -57,6 +57,7 @@ public class GunController : MonoBehaviour
     public int CurrentAmmos => currentAmmos;
     public int MaxAmmos => maxAmmos;
     public int TotalAmmos => totalAmmos;
+    public bool IsReloading => isReloading;
     public bool GunActivated => gunActivated;
     public GunInteraction GunDropped => gunDrop;
     public GunAnimations GunAnimations => gunAnimations;
@@ -93,7 +94,7 @@ public class GunController : MonoBehaviour
 
     private void Update()
     {
-        if (!gunActivated) return;
+        if (!gunActivated || player.PlayerHealth.IsDeath) return;
 
         HandleShoot();
         HandleUpdateCameraRecoil();
@@ -174,7 +175,7 @@ public class GunController : MonoBehaviour
 
         if (hit.collider.CompareTag("Enemy"))
         {
-            if (hit.collider.TryGetComponent<Enemy>(out var enemy))
+            if (hit.collider.TryGetComponent<EnemyController>(out var enemy))
                 enemy.TakeHit(-hit.normal, bulletForce, gunDamage);
         }
 

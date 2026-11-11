@@ -27,6 +27,16 @@ public class Crosshair : MonoBehaviour
             aimDot.SetActive(false);
     }
 
+    private void OnEnable()
+    {
+        GameEvents.OnPlayerDeath += HandlePlayerDeath;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
+    }
+
     private void LateUpdate()
     {
         float normalizedSpread = Mathf.InverseLerp(minSpread, maxSpread, currentSpread);
@@ -49,5 +59,11 @@ public class Crosshair : MonoBehaviour
 
         if (aimDot != null)
             aimDot.SetActive(isAiming && hasRedDot);
+    }
+
+    private void HandlePlayerDeath()
+    {
+        crosshairRect.gameObject.SetActive(false);
+        aimDot.SetActive(false);
     }
 }
