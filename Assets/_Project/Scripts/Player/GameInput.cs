@@ -61,6 +61,8 @@ public class GameInput : MonoBehaviour
         player.Throw.performed -= OnThrowPerformed;
     }
 
+    public void EnableInput() => inputSet.Enable();
+    public void DisableInput() => inputSet.Disable();
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
     public Vector2 GetMouseInput() => player.Look.ReadValue<Vector2>();
 

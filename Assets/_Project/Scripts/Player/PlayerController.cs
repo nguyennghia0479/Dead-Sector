@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : EntityController
 {
     [Header("Speed Settings")]
     [SerializeField] private float walkSpeed = 3f;
@@ -37,6 +37,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private FullBodyAnimations bodyAnimations;
     [SerializeField] private PlayerFootsteps footsteps;
 
+    private PlayerHealth playerHealth;
     private CharacterController controller;
     private WeaponManager weaponManager;
     private GunController gunAssigned;
@@ -52,6 +53,7 @@ public class PlayerController : MonoBehaviour
     public bool IsCrouching => isCrouching;
     public bool IsSprinting => isSprinting;
     public bool IsMoving => isMoving;
+    public PlayerHealth PlayerHealth => playerHealth;
     public GameInput GameInput => gameInput;
     public WeaponManager WeaponManager => weaponManager;
     public GunController GunActivated => gunAssigned;
@@ -62,6 +64,7 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
+        playerHealth = GetComponent<PlayerHealth>();
         controller = GetComponent<CharacterController>();
         gameInput = GetComponent<GameInput>();
         weaponManager = GetComponent<WeaponManager>();
@@ -81,10 +84,14 @@ public class PlayerController : MonoBehaviour
         headBob.Initialized(mainCamera.transform.localPosition);
         throwableAssigned.Initialized(throwForce, throwSpawn);
         throwableAssigned.gameObject.SetActive(false);
+        UIManager.Instance.HUDInitialzied(this);
+        Initialized(playerHealth);
     }
 
     private void OnEnable()
     {
+        GameEvents.OnPlayerDeath += HandlePlayerDeath;
+
         gameInput.OnJumpPressed += HandleJumpPressed;
         gameInput.OnCrouchPressed += HandleCrouchPressed;
         gameInput.OnSprintPressed += HandleSprintPressed;
@@ -98,6 +105,8 @@ public class PlayerController : MonoBehaviour
 
     private void OnDisable()
     {
+        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
+
         gameInput.OnJumpPressed -= HandleJumpPressed;
         gameInput.OnCrouchPressed -= HandleCrouchPressed;
         gameInput.OnSprintPressed -= HandleSprintPressed;
@@ -111,16 +120,19 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (playerHealth.IsDeath) return;
+
         isGrounded = controller.isGrounded;
         HandleVerticalVelocity();
         HandleFinalMove();
         HandleRotation();
         HandleCrouch();
         HandleHeadBob();
-        HandleFullBodyAnimation();
+        HandleLocomotions();
         HandleMainCameraFOV();
         HandleFootstepsSFX();
         HandleLandingSFX();
+        HandleBurnHit();
     }
 
     private void HandleVerticalVelocity()
@@ -164,9 +176,9 @@ public class PlayerController : MonoBehaviour
         headBob.HandleHeadBob(mainCamera.transform, IsMoving, isGrounded, isSprinting);
     }
 
-    private void HandleFullBodyAnimation()
+    private void HandleLocomotions()
     {
-        bodyAnimations.HandleAnimations(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
+        bodyAnimations.HandleLocomotions(moveInput, gameInput.GetMouseInput(), isCrouching, isSprinting);
     }
 
     private void HandleFootstepsSFX()
@@ -207,6 +219,14 @@ public class PlayerController : MonoBehaviour
     public void StartThrowable()
     {
         throwableAssigned.gameObject.SetActive(true);
+    }
+
+    private void HandlePlayerDeath()
+    {
+        gameInput.DisableInput();
+        gunAssigned.gameObject.SetActive(false);
+        bodyAnimations.HandleDeathAnimation(IsCrouching);
+        mainCamera.enabled = false;
     }
 
     private void HandleJumpPressed()
@@ -258,7 +278,7 @@ public class PlayerController : MonoBehaviour
 
     private void HandleAimPressed()
     {
-        if (gunAssigned.GunActivated)
+        if (gunAssigned.GunActivated && !gunAssigned.IsReloading)
         {
             isAiming = !isAiming;
             gunAssigned.SetGunAiming(isAiming);

@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class EnemyAnimationBridge : MonoBehaviour
 {
-    private Enemy enemy;
+    private EnemyController enemy;
 
     private void Awake()
     {
-        enemy = GetComponent<Enemy>();
+        enemy = GetComponent<EnemyController>();
     }
 
     public void CallHitFinished()

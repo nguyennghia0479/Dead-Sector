@@ -4,7 +4,7 @@ public class EnemyWalkState : EnemyState
 {
     
 
-    public EnemyWalkState(Enemy enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
+    public EnemyWalkState(EnemyController enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
     {
     }
 
@@ -18,6 +18,9 @@ public class EnemyWalkState : EnemyState
     public override void Update()
     {
         base.Update();
+
+        if (enemy.Player.PlayerHealth.IsDeath)
+            stateMachine.ChangeState(enemy.IdleState);
 
         enemy.Agent.SetDestination(targetTransform.position);
         if (enemy.DistanceToPlayer < enemy.ChaseDistance)

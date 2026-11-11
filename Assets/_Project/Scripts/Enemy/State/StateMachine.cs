@@ -3,6 +3,7 @@ using UnityEngine;
 public class StateMachine
 {
     private EnemyState currentState;
+    private bool canChangeState = true;
 
     public void Initialized(EnemyState state)
     {
@@ -12,6 +13,8 @@ public class StateMachine
 
     public void ChangeState(EnemyState newState)
     {
+        if (!canChangeState) return;
+
         currentState.Exit();
         currentState = newState;
         currentState.Enter();
@@ -21,4 +24,6 @@ public class StateMachine
     {
         currentState.Update();
     }
+
+    public void StopStateMachine() => canChangeState = false;
 }

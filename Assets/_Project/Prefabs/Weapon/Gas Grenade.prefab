@@ -16428,11 +16428,12 @@ MonoBehaviour:
   throwableType: 0
   hitLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 640
   explosionEffect: {fileID: 979655453943382955}
-  explosionRadius: 10
+  explosionDamage: 150
+  explosionRadius: 5
   delay: 3
-  explosiveForce: 250
+  explosionForce: 250
   upwardsModifier: 3
   maxAmount: 4
   explosionClip: {fileID: 8300000, guid: 1589f755989788e46a57b0c6c199ed8d, type: 3}

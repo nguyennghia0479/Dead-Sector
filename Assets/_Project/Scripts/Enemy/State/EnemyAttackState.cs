@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class EnemyAttackState : EnemyState
 {
-    public EnemyAttackState(Enemy enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
+    public EnemyAttackState(EnemyController enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
     {
     }
 
@@ -18,6 +18,9 @@ public class EnemyAttackState : EnemyState
     public override void Update()
     {
         base.Update();
+
+        if (enemy.Player.PlayerHealth.IsDeath)
+            stateMachine.ChangeState(enemy.IdleState);
 
         enemy.HandleLookToPlayer();
         if (enemy.DistanceToPlayer > enemy.AttackDistance)

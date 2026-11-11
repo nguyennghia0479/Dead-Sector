@@ -15,8 +15,14 @@ public class Grenade : Throwable
         int hitAmount = Physics.OverlapSphereNonAlloc(transform.position, explosionRadius, hitColliders, hitLayer);
         for (int i = 0; i < hitAmount; i++)
         {
+            if (hitColliders[i].TryGetComponent<IDamageable>(out var damageable))
+            {
+                damageable.TakeGrenadeHit(explosionDamage, explosionForce, transform.position, explosionRadius, upwardsModifier);
+                return;
+            }
+
             if (hitColliders[i].TryGetComponent<Rigidbody>(out var rb))
-                rb.AddExplosionForce(explosiveForce, transform.position, explosionRadius, upwardsModifier);
+                rb.AddExplosionForce(explosionForce, transform.position, explosionRadius, upwardsModifier);
         }
     }
 }
