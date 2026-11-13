@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
+  m_Name: M82
+  m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  gunName: M82
+  gunIcon: {fileID: 21300000, guid: f8c8b9edabfcc0e47ac88dc73f91b520, type: 3}
+  gunPrefab: {fileID: 184745738633260145, guid: 14da82a6d7e1a8741b4f288d8a41642c, type: 3}
+  pickupPrefab: {fileID: 169368663636054219, guid: 40881fbb9a033d247a04ff22928acb72, type: 3}
+  gunDamage: 10
+  gunRange: 100
+  fireRate: 0.7
+  bulletForce: 15
+  pelletPerShot: 1
+  pelletSpreadMultiplier: 1
+  hasScope: 1
+  isSniper: 1
+  reserveAmmo: 30
+  magazineSize: 10
+  isIncremental: 0
+  drawClip: {fileID: 8300000, guid: e706d08b3166626479e5827cbb61e955, type: 3}
+  hideClip: {fileID: 8300000, guid: 9076ce41652ae104996141c0fa757773, type: 3}
+  noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
+  shootClip: {fileID: 8300000, guid: 3f208a2b2f4600f4faedf9de2e1267a6, type: 3}
+  reloadClip: {fileID: 8300000, guid: ed8f52c7d89b47c42a8e22fff3c82288, type: 3}
+  reloadLoopClip: {fileID: 0}
+  reloadnEndClip: {fileID: 0}

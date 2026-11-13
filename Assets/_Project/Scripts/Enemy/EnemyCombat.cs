@@ -2,8 +2,14 @@ using UnityEngine;
 
 public class EnemyCombat : MonoBehaviour
 {
-    [SerializeField] private int damage = 10;
-    [SerializeField] private LayerMask playerLayer;
+    private int damage = 10;
+    private LayerMask playerLayer;
+
+    public void Initialized(int damage, LayerMask playerLayer)
+    {
+        this.damage = damage;
+        this.playerLayer = playerLayer;
+    }
 
     private void OnTriggerEnter(Collider other)
     {
@@ -13,5 +19,4 @@ public class EnemyCombat : MonoBehaviour
         if (other.TryGetComponent<PlayerController>(out var player))
             player.PlayerHealth.TakeDamage(damage);
     }
-
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 public static class GameEvents
 {
     public static event Action<Sprite, Sprite> OnWeaponSwitched;
-    public static event Action<int, int, int> OnAmmosChanged;
+    public static event Action<int, int, int> OnAmmoChanged;
     public static event Action<int> OnHealthChanged;
     public static event Action<ThrowableType, int> OnThrowableAmountChanged;
     public static event Action<EnemyController> OnEnemyDeath;
@@ -17,9 +17,9 @@ public static class GameEvents
         OnWeaponSwitched?.Invoke(primaryGun, secondaryGun);
     }
 
-    public static void RaiseAmmosChanged(int currentAmmos, int totalAmmos, int maxAmmos)
+    public static void RaiseAmmoChanged(int ammoInMag, int currentReserveAmmo, int magazineSize)
     {
-        OnAmmosChanged?.Invoke(currentAmmos, totalAmmos, maxAmmos);
+        OnAmmoChanged?.Invoke(ammoInMag, currentReserveAmmo, magazineSize);
     }
 
     public static void RaiseHealthChanged(int currentHP)

@@ -11,13 +11,16 @@ public class EnemyController : EntityController
     [SerializeField] private float chaseSpeed = 4f;
     [SerializeField] private float attackDistance = 1.4f;
     [SerializeField] private int attackDamage = 10;
+    [SerializeField] private LayerMask playerLayer;
 
     [Header("Knockback Settings")]
     [SerializeField] private float knockbackMultiplier = .15f;
     [SerializeField] private float knockbackDecay = 8f;
 
     [Header("References")]
+    [SerializeField] private EnemyCombat enemyCombat;
     [SerializeField] private EnemyHealth enemyHealth;
+    [SerializeField] private EnemyAudio enemyAudio;
 
     private float distanceToPlayer;
     private Vector3 knockbackVelocity;
@@ -29,6 +32,7 @@ public class EnemyController : EntityController
     private PlayerController player;
     private bool isPlayHitAnimation;
 
+    public EnemyAudio EnemyAudio => enemyAudio;
     public float IdleDuration => idleDuration;
     public float WalkSpeed => walkSpeed;
     public float ChaseDistance => chaseDistance;
@@ -66,16 +70,19 @@ public class EnemyController : EntityController
 
     private void OnEnable()
     {
-        GameEvents.OnEnemyDeath += HandleEnemyDeath;
+        enemyHealth.OnHit += HandleHit;
     }
 
     private void OnDisable()
     {
-        GameEvents.OnEnemyDeath -= HandleEnemyDeath;
+        enemyHealth.OnHit -= HandleHit;
     }
 
     private void Start()
     {
+        enemyCombat = GetComponentInChildren<EnemyCombat>();
+        enemyCombat.Initialized(attackDamage, playerLayer);
+
         stateMachine.Initialized(IdleState);
         enemyHealth.Initialzied(this);
         Initialized(enemyHealth);
@@ -115,7 +122,7 @@ public class EnemyController : EntityController
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
         rb.isKinematic = true;
-        
+
         if (NavMesh.SamplePosition(transform.position, out NavMeshHit hit, 3f, NavMesh.AllAreas))
         {
             agent.enabled = true;
@@ -159,18 +166,6 @@ public class EnemyController : EntityController
         animator.SetTrigger(HitHash);
     }
 
-    public void HandleLookToPlayer()
-    {
-        Vector3 direction = player.transform.position - transform.position;
-        direction.y = 0;
-
-        if (direction.sqrMagnitude > .001f)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
-        }
-    }
-
     public void OnHitAnimationFinished()
     {
         isPlayHitAnimation = false;
@@ -185,10 +180,21 @@ public class EnemyController : EntityController
         distanceToPlayer = Vector3.Distance(agent.transform.position, player.transform.position);
     }
 
-    private void HandleEnemyDeath(EnemyController enemy)
+    public void HandleLookToPlayer()
     {
-        if (enemy != this) return;
+        Vector3 direction = player.transform.position - transform.position;
+        direction.y = 0;
 
+        if (direction.sqrMagnitude > .001f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 5f);
+        }
+    }
+
+    public void HandleEnemyDeath()
+    {
+        enemyAudio.PlayDeathSFX();
         stateMachine.StopStateMachine();
         animator.ResetTrigger(HitHash);
         agent.enabled = false;
@@ -201,6 +207,12 @@ public class EnemyController : EntityController
 
         float delayTime = 10f;
         Destroy(gameObject, delayTime);
+    }
+
+    private void HandleHit()
+    {
+        if (!enemyHealth.IsDeath)
+            enemyAudio.PlayHurtSFX();
     }
 
     private void OnDrawGizmos()

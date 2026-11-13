@@ -209,7 +209,7 @@ MonoBehaviour:
   isHoldInteract: 0
   holdDuration: 2
   highlightMat: {fileID: 2100000, guid: 78f2b433c321ce04282a3ddef6ae7815, type: 2}
-  throwablePrefab: {fileID: 6249454781885932878, guid: 617b8a77b72944c4d82283c928113d4f, type: 3}
+  throwableSO: {fileID: 11400000, guid: e8c3da302a2e02143bb25aa1d7adfc54, type: 2}
   amount: 4
 --- !u!54 &1166438537540185206
 Rigidbody:

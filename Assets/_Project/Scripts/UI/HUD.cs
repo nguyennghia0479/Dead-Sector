@@ -12,8 +12,8 @@ public class HUD : MonoBehaviour
     [SerializeField] private TMP_Text hpText;
     [SerializeField] private Image primaryGunImg;
     [SerializeField] private Image secondaryGunImg;
-    [SerializeField] private TMP_Text currentAmmosText;
-    [SerializeField] private TMP_Text totalAmmosText;
+    [SerializeField] private TMP_Text ammoInMagText;
+    [SerializeField] private TMP_Text currentReserveAmmoText;
     [Space]
     [SerializeField] private TMP_Text grenadeAmountText;
     [SerializeField] private TMP_Text molotovAmountText;
@@ -45,7 +45,7 @@ public class HUD : MonoBehaviour
     private void OnEnable()
     {
         GameEvents.OnWeaponSwitched += HandleWeaponSwitched;
-        GameEvents.OnAmmosChanged += HandleAmmosChanged;
+        GameEvents.OnAmmoChanged += HandleAmmosChanged;
         GameEvents.OnHealthChanged += HandleHealthChanged;
         GameEvents.OnThrowableAmountChanged += HandleThrowableAmountChanged;
         GameEvents.OnPlayerHit += HandlePlayerHit;
@@ -55,7 +55,7 @@ public class HUD : MonoBehaviour
     private void OnDisable()
     {
         GameEvents.OnWeaponSwitched -= HandleWeaponSwitched;
-        GameEvents.OnAmmosChanged -= HandleAmmosChanged;
+        GameEvents.OnAmmoChanged -= HandleAmmosChanged;
         GameEvents.OnHealthChanged -= HandleHealthChanged;
         GameEvents.OnThrowableAmountChanged -= HandleThrowableAmountChanged;
         GameEvents.OnPlayerHit -= HandlePlayerHit;
@@ -83,15 +83,15 @@ public class HUD : MonoBehaviour
         secondaryGunImg.gameObject.SetActive(true);
     }
 
-    private void HandleAmmosChanged(int currentAmmos, int totalAmmos, int maxAmmos)
+    private void HandleAmmosChanged(int ammoInMag, int currentReserveAmmo, int magazineSize)
     {
-        currentAmmosText.text = currentAmmos.ToString();
-        totalAmmosText.text = totalAmmos.ToString();
+        ammoInMagText.text = ammoInMag.ToString();
+        currentReserveAmmoText.text = currentReserveAmmo.ToString();
 
-        int reloadThreshold = Mathf.CeilToInt(maxAmmos * ammoThresholdPercentage);
-        reloadUI.SetActive((currentAmmos <= reloadThreshold) && totalAmmos > 0);
-        lowAmmoUI.SetActive((currentAmmos <= reloadThreshold) && (totalAmmos == 0 && currentAmmos > 0));
-        noAmmoUI.SetActive(currentAmmos == 0 && totalAmmos == 0);
+        int reloadThreshold = Mathf.CeilToInt(magazineSize * ammoThresholdPercentage);
+        reloadUI.SetActive((ammoInMag <= reloadThreshold) && currentReserveAmmo > 0);
+        lowAmmoUI.SetActive((ammoInMag <= reloadThreshold) && (currentReserveAmmo == 0 && ammoInMag > 0));
+        noAmmoUI.SetActive(ammoInMag == 0 && currentReserveAmmo == 0);
     }
 
     private void HandleHealthChanged(int currentHP)
@@ -112,7 +112,7 @@ public class HUD : MonoBehaviour
     {
         if (bloodEffectRoutine != null)
             StopCoroutine(bloodEffectRoutine);
-        bloodEffectRoutine = StartCoroutine(ChangeAlphaRoutine(bloodEffectImg, 1f, 0f));
+        bloodEffectRoutine = StartCoroutine(ChangeAlphaRoutine(bloodEffectImg, 1f, 0f, bloodScreenDuration));
 
         if (currentHP <= hpThreshold && !enableBloodBlur)
         {
@@ -137,7 +137,7 @@ public class HUD : MonoBehaviour
 
         if (healScreenRoutine != null)
             StopCoroutine(healScreenRoutine);
-        healScreenRoutine = StartCoroutine(ChangeAlphaRoutine(healScreenImg, 1f, 0f));
+        healScreenRoutine = StartCoroutine(ChangeAlphaRoutine(healScreenImg, 1f, 0f, healScreenDuration));
     }
 
     private IEnumerator BloodBlurRoutine()
@@ -145,17 +145,17 @@ public class HUD : MonoBehaviour
         float alpha = 1f;
         while (enableBloodBlur)
         {
-            yield return ChangeAlphaRoutine(bloodBlurImg, alpha, alpha / 2f);
-            yield return ChangeAlphaRoutine(bloodBlurImg, alpha / 2f, alpha);
+            yield return ChangeAlphaRoutine(bloodBlurImg, alpha, alpha / 2f, bloodScreenDuration);
+            yield return ChangeAlphaRoutine(bloodBlurImg, alpha / 2f, alpha, bloodScreenDuration);
         }
     }
 
-    private IEnumerator ChangeAlphaRoutine(Image image, float startAlpha, float targetAlpha)
+    private IEnumerator ChangeAlphaRoutine(Image image, float startAlpha, float targetAlpha, float duration)
     {
         float time = 0;
-        while (time < bloodScreenDuration)
+        while (time < duration)
         {
-            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, time / bloodScreenDuration);
+            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, time / duration);
             UpdateImageColorAlpha(image, newAlpha);
             time += Time.deltaTime;
             yield return null;

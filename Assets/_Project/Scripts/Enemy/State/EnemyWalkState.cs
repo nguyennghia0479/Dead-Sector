@@ -2,8 +2,6 @@ using UnityEngine;
 
 public class EnemyWalkState : EnemyState
 {
-    
-
     public EnemyWalkState(EnemyController enemy, StateMachine stateMachine, string boolHash) : base(enemy, stateMachine, boolHash)
     {
     }
@@ -25,6 +23,12 @@ public class EnemyWalkState : EnemyState
         enemy.Agent.SetDestination(targetTransform.position);
         if (enemy.DistanceToPlayer < enemy.ChaseDistance)
             stateMachine.ChangeState(enemy.ChaseState);
+
+        if (!enemy.EnemyAudio.IsPlaying() && sfxTimer <= 0)
+        {
+            sfxTimer = enemy.EnemyAudio.GetDelayTimeWithClipLength(true);
+            enemy.EnemyAudio.PlayGrowlSFX();
+        }
     }
 
     public override void Exit()

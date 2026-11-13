@@ -10,6 +10,7 @@ public class GunAnimations
     private static readonly int IsIncrementalHash = Animator.StringToHash("isIncremental");
     private static readonly int ReloadLoopHash = Animator.StringToHash("reloadLoop");
     private static readonly int ReloadFinishedHash = Animator.StringToHash("reloadFinished");
+    private static readonly int StopReloadHash = Animator.StringToHash("stopReload");
     private static readonly int HideHash = Animator.StringToHash("hide");
     private static readonly int IsSwitchGunHash = Animator.StringToHash("isSwitchGun");
 
@@ -24,6 +25,7 @@ public class GunAnimations
         gunAnimator.ResetTrigger(ReloadHash);
         gunAnimator.ResetTrigger(ReloadLoopHash);
         gunAnimator.ResetTrigger(ReloadFinishedHash);
+        gunAnimator.ResetTrigger(StopReloadHash);
 
         gunAnimator.SetBool(IsIncrementalHash, isIncremental);
         gunAnimator.SetTrigger(ReloadHash);
@@ -37,6 +39,11 @@ public class GunAnimations
     public void PlayReloadFinishedAnimation()
     {
         gunAnimator.SetTrigger(ReloadFinishedHash);
+    }
+
+    public void PlayStopReloadAnimation()
+    {
+        gunAnimator.SetTrigger(StopReloadHash);
     }
     
     public void PlayUnequipAnimation(bool isSwitchGun)

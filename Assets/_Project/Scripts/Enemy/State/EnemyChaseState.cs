@@ -29,6 +29,12 @@ public class EnemyChaseState : EnemyState
 
         if (enemy.DistanceToPlayer > enemy.ChaseDistance)
             stateMachine.ChangeState(enemy.WalkState);
+
+        if (!enemy.EnemyAudio.IsPlaying() && sfxTimer <= 0)
+        {
+            sfxTimer = enemy.EnemyAudio.GetDelayTimeWithClipLength(false);
+            enemy.EnemyAudio.PlayChaseSFX();
+        }
     }
 
     public override void Exit()

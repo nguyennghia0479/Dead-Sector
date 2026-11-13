@@ -122,7 +122,10 @@ MonoBehaviour:
   isHoldInteract: 0
   holdDuration: 2
   highlightMat: {fileID: 2100000, guid: 78f2b433c321ce04282a3ddef6ae7815, type: 2}
-  gunPrefab: {fileID: 4555260352245357839, guid: bda03769b94bf2145bf434f99c92f0c1, type: 3}
+  gunSO: {fileID: 11400000, guid: dee2c0e6d57467146820e61b4db2c802, type: 2}
+  magazineSize: 0
+  reserveAmmo: 0
+  gunPrefab: {fileID: 0}
 --- !u!65 &3223545630737833871
 BoxCollider:
   m_ObjectHideFlags: 0

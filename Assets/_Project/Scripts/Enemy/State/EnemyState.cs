@@ -10,7 +10,7 @@ public class EnemyState
     protected NavMeshAgent agent;
     protected Transform targetTransform;
     protected float stateTimer;
-    protected bool triggerCalled;
+    protected float sfxTimer;
 
     public EnemyState(EnemyController enemy, StateMachine stateMachine,  string boolHash)
     {
@@ -26,18 +26,18 @@ public class EnemyState
     public virtual void Enter()
     {
         animator.SetBool(boolHash, true);
-        triggerCalled = false;
+        sfxTimer = 1f;
     }
 
     public virtual void Update()
     {
         stateTimer -= Time.deltaTime;
+        sfxTimer -= Time.deltaTime;
     }
 
     public virtual void Exit()
     {
         animator.SetBool(boolHash, false);
+        enemy.EnemyAudio.StopSFX();
     }
-
-    public void OnTriggerCalled() => triggerCalled = true;
 }

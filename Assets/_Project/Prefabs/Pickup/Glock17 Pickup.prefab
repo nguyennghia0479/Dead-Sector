@@ -409,12 +409,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 321cedc66aae99948811e947bb6c8bb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunInteraction
-  gunPrefab: {fileID: 2127285000490302400, guid: 203171d3799b3fe41b62564085b6d5ae, type: 3}
   pickupName: Pickup Glock 17
   canInteract: 1
   isHoldInteract: 0
   holdDuration: 2
   highlightMat: {fileID: 2100000, guid: 78f2b433c321ce04282a3ddef6ae7815, type: 2}
+  gunSO: {fileID: 11400000, guid: d753f4847ee228441a8c5514418a78ea, type: 2}
+  magazineSize: 0
+  reserveAmmo: 0
+  gunPrefab: {fileID: 0}
 --- !u!65 &4290104869247634810
 BoxCollider:
   m_ObjectHideFlags: 0

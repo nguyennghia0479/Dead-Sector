@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
+  m_Name: M870
+  m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  gunName: M870
+  gunIcon: {fileID: 21300000, guid: c5440bcc63a7dad4a9413a28d1978be2, type: 3}
+  gunPrefab: {fileID: 1782458673767181581, guid: de78da808e3fa704fa4e410fd4ceccaf, type: 3}
+  pickupPrefab: {fileID: 5531797214635404002, guid: 34ccefbd050006e47a0fb24cadd3efc2, type: 3}
+  gunDamage: 10
+  gunRange: 100
+  fireRate: 1
+  bulletForce: 2.5
+  pelletPerShot: 9
+  pelletSpreadMultiplier: 1
+  hasScope: 0
+  isSniper: 0
+  reserveAmmo: 30
+  magazineSize: 6
+  isIncremental: 1
+  drawClip: {fileID: 8300000, guid: 041a380611a93c84a922e4129041761d, type: 3}
+  hideClip: {fileID: 8300000, guid: 9076ce41652ae104996141c0fa757773, type: 3}
+  noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
+  shootClip: {fileID: 8300000, guid: a53a4dd0a72989b4094f57d735f6e536, type: 3}
+  reloadClip: {fileID: 0}
+  reloadLoopClip: {fileID: 8300000, guid: abe960ea75b7cad468800a271b49b828, type: 3}
+  reloadnEndClip: {fileID: 8300000, guid: be7ad977e24f96441ba6dd7fbbe42d2b, type: 3}
