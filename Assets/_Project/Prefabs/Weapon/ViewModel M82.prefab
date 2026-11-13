@@ -6980,6 +6980,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4748545f51d8f164eb979f848ea3672a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GunController
+  gunSO: {fileID: 11400000, guid: ba7a4a99c3e1d7f4b892c80bf4848f70, type: 2}
+  ignoreLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  muzzleFlash: {fileID: 5980770501607430330}
+  hitDelay: 0.15
   gunDamage: 10
   gunRange: 100
   fireRate: 0.7
@@ -6988,26 +6994,11 @@ MonoBehaviour:
   pelletSpreadMultiplier: 1
   hasScope: 1
   isSniper: 1
-  ignoreLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  muzzleFlash: {fileID: 5980770501607430330}
-  gunDrop: {fileID: 169368663636054219, guid: 40881fbb9a033d247a04ff22928acb72, type: 3}
-  gunIcon: {fileID: 21300000, guid: f8c8b9edabfcc0e47ac88dc73f91b520, type: 3}
-  hitDelay: 0.15
-  totalAmmos: 30
-  maxAmmos: 10
-  currentAmmos: 0
+  currentReserveAmmo: 0
+  magazineSize: 0
   isIncremental: 0
-  isReloading: 0
-  gunSource: {fileID: 7547662683871925726}
-  drawClip: {fileID: 8300000, guid: e706d08b3166626479e5827cbb61e955, type: 3}
-  hideClip: {fileID: 8300000, guid: 9076ce41652ae104996141c0fa757773, type: 3}
-  noAmmoClip: {fileID: 8300000, guid: e9e97c65726ffd04cb0c948f1866f71d, type: 3}
-  shootClip: {fileID: 8300000, guid: 3f208a2b2f4600f4faedf9de2e1267a6, type: 3}
-  reloadClip: {fileID: 8300000, guid: ed8f52c7d89b47c42a8e22fff3c82288, type: 3}
-  reloadLoopClip: {fileID: 0}
-  reloadnEndClip: {fileID: 0}
+  gunAudio:
+    gunSource: {fileID: 7547662683871925726}
   gunAnimations:
     gunAnimator: {fileID: 3316806987567512124}
     gunAnimatorOverride: {fileID: 22100000, guid: ab97098ca33c73c4b954d8cdd7eef517, type: 2}

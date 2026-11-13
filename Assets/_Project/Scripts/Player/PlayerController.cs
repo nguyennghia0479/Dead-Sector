@@ -21,13 +21,16 @@ public class PlayerController : EntityController
     [SerializeField] private float crouchHeight;
     [SerializeField] private bool isCrouching;
 
+    [Header("Sprint Settings")]
+    [SerializeField] private float maxSprintTime = 5f;
+    [SerializeField] private float sprintRecoveryRate = 1f;
+    [SerializeField] private bool isSprinting;
+    [SerializeField] private bool isMoving;
+    [SerializeField] private float sprintTimer;
+
     [Header("Throw Settings")]
     [SerializeField] private float throwForce = 12f;
     [SerializeField] private Transform throwSpawn;
-
-    [Header("Moving Status")]
-    [SerializeField] private bool isSprinting;
-    [SerializeField] private bool isMoving;
 
     [Header("References")]
     [SerializeField] private Transform gunHolder;
@@ -35,7 +38,7 @@ public class PlayerController : EntityController
     [SerializeField] private PlayerCamera playerCam;
     [SerializeField] private HeadBob headBob;
     [SerializeField] private FullBodyAnimations bodyAnimations;
-    [SerializeField] private PlayerFootsteps footsteps;
+    [SerializeField] private PlayerAudio playerAudio;
 
     private PlayerHealth playerHealth;
     private CharacterController controller;
@@ -91,6 +94,8 @@ public class PlayerController : EntityController
     private void OnEnable()
     {
         GameEvents.OnPlayerDeath += HandlePlayerDeath;
+        GameEvents.OnPlayerHealed += HandlePlayerHealed;
+        GameEvents.OnPlayerHit += HandlePlayerHit;
 
         gameInput.OnJumpPressed += HandleJumpPressed;
         gameInput.OnCrouchPressed += HandleCrouchPressed;
@@ -106,6 +111,8 @@ public class PlayerController : EntityController
     private void OnDisable()
     {
         GameEvents.OnPlayerDeath -= HandlePlayerDeath;
+        GameEvents.OnPlayerHealed -= HandlePlayerHealed;
+        GameEvents.OnPlayerHit -= HandlePlayerHit;
 
         gameInput.OnJumpPressed -= HandleJumpPressed;
         gameInput.OnCrouchPressed -= HandleCrouchPressed;
@@ -124,6 +131,7 @@ public class PlayerController : EntityController
 
         isGrounded = controller.isGrounded;
         HandleVerticalVelocity();
+        HandleSprint();
         HandleFinalMove();
         HandleRotation();
         HandleCrouch();
@@ -141,6 +149,16 @@ public class PlayerController : EntityController
             playerVelocity.y = groundedForce;
 
         playerVelocity.y += gravity * Time.deltaTime;
+    }
+
+    private void HandleSprint()
+    {
+        sprintTimer = isSprinting ? sprintTimer + Time.deltaTime : sprintTimer - (Time.deltaTime * sprintRecoveryRate);
+        if (isSprinting && sprintTimer > maxSprintTime)
+        {
+            isSprinting = false;
+            playerAudio.PlayBreathSFX();
+        }
     }
 
     private void HandleFinalMove()
@@ -183,12 +201,12 @@ public class PlayerController : EntityController
 
     private void HandleFootstepsSFX()
     {
-        footsteps.HandleFootsteps(isMoving, isSprinting, isCrouching, isGrounded);
+        playerAudio.HandleFootsteps(isMoving, isSprinting, isCrouching, isGrounded);
     }
 
     private void HandleLandingSFX()
     {
-        footsteps.HandleLanding(isGrounded);
+        playerAudio.HandleLanding(isGrounded);
     }
 
     private void HandleMainCameraFOV()
@@ -223,14 +241,33 @@ public class PlayerController : EntityController
 
     private void HandlePlayerDeath()
     {
+        playerAudio.PlayDeadSFX();
         gameInput.DisableInput();
         gunAssigned.gameObject.SetActive(false);
         bodyAnimations.HandleDeathAnimation(IsCrouching);
         mainCamera.enabled = false;
     }
 
+    private void HandlePlayerHealed()
+    {
+        if (!playerHealth.IsDeath)
+            playerAudio.PlayHealSFX();
+    }
+
+    private void HandlePlayerHit()
+    {
+        if (!playerHealth.IsDeath)
+            playerAudio.PlayHurtSFX();
+    }
+
     private void HandleJumpPressed()
     {
+        if (isCrouching)
+        {
+            isCrouching = false;
+            return;
+        }
+
         if (isGrounded)
             playerVelocity.y = Mathf.Sqrt(jumpHeight * groundedForce * gravity);
     }
@@ -247,6 +284,9 @@ public class PlayerController : EntityController
         {
             isCrouching = false;
             isSprinting = true;
+
+            if (sprintTimer < 0)
+                sprintTimer = 0;
         }
     }
 

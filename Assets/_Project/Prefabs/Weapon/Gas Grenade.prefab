@@ -16425,11 +16425,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e260e63322b22540acb44e5d41cc022, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
-  throwableType: 0
+  throwableSO: {fileID: 11400000, guid: 63debef1280296c499915e913ce6418f, type: 2}
   hitLayer:
     serializedVersion: 2
     m_Bits: 640
   explosionEffect: {fileID: 979655453943382955}
+  throwableType: 0
   explosionDamage: 150
   explosionRadius: 5
   delay: 3

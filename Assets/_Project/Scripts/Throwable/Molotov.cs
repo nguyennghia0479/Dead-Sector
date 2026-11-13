@@ -2,12 +2,14 @@ using UnityEngine;
 
 public class Molotov : Throwable
 {
-    [SerializeField] private float burnDamagePercentage = .2f;
+    [Header("Molotov Settings")]
+    [SerializeField] private float burnDamagePercentage;
     private int burnDamage;
 
     protected override void Awake()
     {
         base.Awake();
+        burnDamagePercentage = throwableSO.BurnDamagePercentage;
         burnDamage = Mathf.CeilToInt(explosionDamage * burnDamagePercentage);
     }
 

@@ -3,41 +3,33 @@ using UnityEngine;
 
 public class GunController : MonoBehaviour
 {
-    [Header("Gun Settings")]
-    [SerializeField] private int gunDamage = 10;
-    [SerializeField] private float gunRange = 100f;
-    [SerializeField] private float fireRate = .2f;
-    [SerializeField] private float bulletForce = 10f;
-    [SerializeField] private int pelletPerShot = 1;
-    [SerializeField] private float pelletSpreadMultiplier = 1f;
-    [SerializeField] private bool hasScope;
-    [SerializeField] private bool isSniper;
+    [Header("Gun Info")]
+    [SerializeField] private GunSO gunSO;
     [SerializeField] private LayerMask ignoreLayer;
     [SerializeField] private MuzzleFlashEffect muzzleFlash;
-    [SerializeField] private GunInteraction gunDrop;
-    [SerializeField] private Sprite gunIcon;
     [SerializeField] private float hitDelay = .15f;
-    private float nextFireTimer;
     private WaitForSeconds hitWaitTime;
 
-    [Header("Ammo Settings")]
-    [SerializeField] private int totalAmmos;
-    [SerializeField] private int maxAmmos;
-    [SerializeField] private int currentAmmos;
-    [SerializeField] private bool isIncremental;
-    [SerializeField] private bool isReloading;
+    [Header("Gun Settings")]
+    [SerializeField] private int gunDamage;
+    [SerializeField] private float gunRange;
+    [SerializeField] private float fireRate;
+    private float nextFireTimer;
+    [SerializeField] private float bulletForce;
+    [SerializeField] private int pelletPerShot;
+    [SerializeField] private float pelletSpreadMultiplier;
+    [SerializeField] private bool hasScope;
+    [SerializeField] private bool isSniper;
 
-    [Header("Audio Settings")]
-    [SerializeField] private AudioSource gunSource;
-    [SerializeField] private AudioClip drawClip;
-    [SerializeField] private AudioClip hideClip;
-    [SerializeField] private AudioClip noAmmoClip;
-    [SerializeField] private AudioClip shootClip;
-    [SerializeField] private AudioClip reloadClip;
-    [SerializeField] private AudioClip reloadLoopClip;
-    [SerializeField] private AudioClip reloadnEndClip;
+    [Header("Ammo Settings")]
+    [SerializeField] private int currentReserveAmmo;
+    [SerializeField] private int magazineSize;
+    [SerializeField] private bool isIncremental;
+    private int ammoInMag;
+    private bool isReloading;
 
     [Header("Gun Attributes")]
+    [SerializeField] private GunAudio gunAudio;
     [SerializeField] private GunAnimations gunAnimations;
     [SerializeField] private CameraRecoil cameraRecoil;
     [SerializeField] private GunSway gunSway;
@@ -54,34 +46,34 @@ public class GunController : MonoBehaviour
     private bool isShooting;
     private bool isAiming;
 
-    public int CurrentAmmos => currentAmmos;
-    public int MaxAmmos => maxAmmos;
-    public int TotalAmmos => totalAmmos;
+    public GunSO Gun => gunSO;
+    public int AmmoInMagazine => ammoInMag;
+    public int CurrentReserveAmmo => currentReserveAmmo;
     public bool IsReloading => isReloading;
     public bool GunActivated => gunActivated;
-    public GunInteraction GunDropped => gunDrop;
+    public GunAudio GunAudio => gunAudio;
     public GunAnimations GunAnimations => gunAnimations;
     public GunAiming GunAiming => gunAiming;
     public PlayerController Player => player;
     public bool IsSniper => isSniper;
-    public Sprite GunIcon => gunIcon;
 
     private void Awake()
     {
+        Initialized();
         player = GetComponentInParent<PlayerController>();
         gameInput = player.GameInput;
         mainCamera = Camera.main;
-        currentAmmos = maxAmmos;
         hitWaitTime = new WaitForSeconds(hitDelay);
     }
 
     private void OnEnable()
     {
-        UpdateAmmosUI();
+        UpdateAmmoUI();
     }
 
     private void Start()
     {
+        gunAudio.Initialized(gunSO);
         gunAnimations.Initialized();
         gunSway.Initialized(gameInput, transform.localPosition);
         gunRecoil.Initialized(transform.localPosition, transform.localRotation);
@@ -112,13 +104,32 @@ public class GunController : MonoBehaviour
         HandleScopeAiming();
     }
 
+    private void Initialized()
+    {
+        if (gunSO == null) return;
+
+        gunDamage = gunSO.GunDamage;
+        gunRange = gunSO.GunRange;
+        fireRate = gunSO.FireRate;
+        bulletForce = gunSO.BulletForce;
+        pelletPerShot = gunSO.PelletPerShot;
+        pelletSpreadMultiplier = gunSO.PelletSpreadMultiplier;
+        hasScope = gunSO.HasScope;
+        isSniper = gunSO.IsSniper;
+
+        currentReserveAmmo = gunSO.ReserveAmmo;
+        magazineSize = gunSO.MagazineSize;
+        isIncremental = gunSO.IsIncremental;
+        ammoInMag = magazineSize;
+    }
+
     private void HandleShoot()
     {
         nextFireTimer += Time.deltaTime;
         if (!isShooting || nextFireTimer < fireRate)
             return;
 
-        if (currentAmmos > 0)
+        if (ammoInMag > 0)
         {
             nextFireTimer = 0f;
             Shoot();
@@ -126,10 +137,10 @@ public class GunController : MonoBehaviour
         else
         {
             HandleReload();
-            if (totalAmmos <= 0)
+            if (currentReserveAmmo <= 0)
             {
                 nextFireTimer = 0f;
-                PlayNoAmmoSFX();
+                gunAudio.PlayNoAmmoSFX();
             }
         }
     }
@@ -139,18 +150,21 @@ public class GunController : MonoBehaviour
         if (isReloading)
         {
             if (isIncremental)
-                gunAnimations.PlayReloadFinishedAnimation();
+            {
+                gunAnimations.PlayStopReloadAnimation();
+                ReloadFinished();
+            }
             else
                 return;
         }
 
-        PlayGunShootSFX();
-        currentAmmos--;
+        gunAudio.PlayGunShootSFX();
+        ammoInMag--;
         muzzleFlash.Play();
         cameraRecoil.ApplyRecoil(isAiming);
         gunRecoil.ApplyRecoil(isAiming);
         gunAccuracy.ApplyBloom(isAiming);
-        UpdateAmmosUI();
+        UpdateAmmoUI();
 
         for (int i = 0; i < pelletPerShot; i++)
             ShootPellet();
@@ -187,48 +201,43 @@ public class GunController : MonoBehaviour
 
     public void HandleReload()
     {
-        if (isReloading || totalAmmos <= 0 || currentAmmos == maxAmmos) return;
+        if (isReloading || currentReserveAmmo <= 0 || ammoInMag == magazineSize) return;
 
         player.CancelAimingIfNeeded();
         isReloading = true;
         gunAnimations.PlayReloadAnimation(isIncremental);
-        PlayGunReloadSFX(reloadClip);
+        gunAudio.PlayGunReloadSFX();
     }
 
     public void ReloadFinished()
     {
         if (!isIncremental)
         {
-            int ammosNeeded = maxAmmos - currentAmmos;
-            int ammosToReload = Mathf.Min(ammosNeeded, totalAmmos);
+            int ammosNeeded = magazineSize - ammoInMag;
+            int ammosToReload = Mathf.Min(ammosNeeded, currentReserveAmmo);
 
-            currentAmmos += ammosToReload;
-            totalAmmos -= ammosToReload;
-            UpdateAmmosUI();
+            ammoInMag += ammosToReload;
+            currentReserveAmmo -= ammosToReload;
+            UpdateAmmoUI();
         }
         isReloading = false;
     }
 
     public void ReloadLoop()
     {
-        currentAmmos++;
-        totalAmmos--;
-        int ammosToReload = maxAmmos - currentAmmos;
+        ammoInMag++;
+        currentReserveAmmo--;
+        int ammosToReload = magazineSize - ammoInMag;
         if (ammosToReload > 0)
         {
             gunAnimations.PlayReloadLoopAnimation();
         }
         else
         {
-            PlayGunReloadSFX(reloadnEndClip);
+            gunAudio.PlayGunReloadEndSFX();
             gunAnimations.PlayReloadFinishedAnimation();
         }
-        UpdateAmmosUI();
-    }
-
-    public void PlayReloadLoopSound()
-    {
-        PlayGunReloadSFX(reloadLoopClip);
+        UpdateAmmoUI();
     }
 
     private void HandleUpdateCameraRecoil()
@@ -270,54 +279,24 @@ public class GunController : MonoBehaviour
             UIManager.Instance.UpdateCrosshair(gunAccuracy.CurrentSpread, gunAccuracy.MinSpread, gunAccuracy.MaxSpread);
     }
 
-    private void UpdateAmmosUI()
+    private void UpdateAmmoUI()
     {
-        GameEvents.RaiseAmmosChanged(currentAmmos, totalAmmos, maxAmmos);
+        GameEvents.RaiseAmmoChanged(ammoInMag, currentReserveAmmo, magazineSize);
     }
 
     public void PlayUnequipAnimation(bool isSwitchGun = true)
     {
-        PlayHideSFX();
+        gunAudio.PlayHideSFX();
         gunAnimations.PlayUnequipAnimation(isSwitchGun);
         if (isAiming)
             isAiming = false;
     }
 
-    public void PlayDrawSFX()
+    public void SetAmmos(int ammoInMag, int currentReserveAmmo)
     {
-        if (gunSource && drawClip)
-            gunSource.PlayOneShot(drawClip);
-    }
-
-    public void PlayHideSFX()
-    {
-        if (gunSource && hideClip)
-            gunSource.PlayOneShot(hideClip);
-    }
-
-    private void PlayGunShootSFX()
-    {
-        if (gunSource && shootClip)
-            gunSource.PlayOneShot(shootClip);
-    }
-
-    private void PlayNoAmmoSFX()
-    {
-        if (gunSource && noAmmoClip)
-            gunSource.PlayOneShot(noAmmoClip);
-    }
-
-    private void PlayGunReloadSFX(AudioClip clip)
-    {
-        if (gunSource && clip)
-            gunSource.PlayOneShot(clip);
-    }
-
-    public void SetAmmos(int currentAmmos, int totalAmmos)
-    {
-        this.currentAmmos = currentAmmos;
-        this.totalAmmos = totalAmmos;
-        UpdateAmmosUI();
+        this.ammoInMag = ammoInMag;
+        this.currentReserveAmmo = currentReserveAmmo;
+        UpdateAmmoUI();
     }
 
     public void SetGunActivated(bool activeStatus) => gunActivated = activeStatus;

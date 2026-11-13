@@ -174,6 +174,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4cd70ffba5512e94b9f0ac899307c3f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Molotov
+  throwableSO: {fileID: 11400000, guid: e8c3da302a2e02143bb25aa1d7adfc54, type: 2}
   throwableType: 1
   hitLayer:
     serializedVersion: 2
@@ -181,8 +182,8 @@ MonoBehaviour:
   explosionEffect: {fileID: 3271109810909596824, guid: e9191c3a1ee7b644e8b006e0038769fb, type: 3}
   explosionDamage: 25
   explosionRadius: 5
-  delay: 3
   explosionForce: 100
+  delay: 3
   upwardsModifier: 0
   maxAmount: 4
   explosionClip: {fileID: 8300000, guid: a7727c27165b48a46b07b880438326fc, type: 3}

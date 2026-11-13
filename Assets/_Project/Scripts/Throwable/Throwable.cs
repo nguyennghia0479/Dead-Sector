@@ -7,23 +7,26 @@ public enum ThrowableType
 
 public class Throwable : MonoBehaviour
 {
-    [Header("Throwable Settings")]
+    [Header("Throwable Info")]
+    [SerializeField] protected ThrowableSO throwableSO;
     [SerializeField] protected ThrowableType throwableType;
     [SerializeField] protected LayerMask hitLayer;
     [SerializeField] protected ParticleSystem explosionEffect;
-    [SerializeField] protected int explosionDamage = 100;
-    [SerializeField] protected float explosionRadius = 10f;
-    [SerializeField] protected float delay = 3f;
-    [SerializeField] protected float explosionForce = 100f;
-    [SerializeField] protected float upwardsModifier = 3f;
-    [SerializeField] protected int maxAmount = 4;
+
+    [Header("Throwable Settings")]
+    [SerializeField] protected int explosionDamage;
+    [SerializeField] protected float explosionRadius;
+    [SerializeField] protected float explosionForce;
+    [SerializeField] protected float delay;
+    [SerializeField] protected float upwardsModifier;
+    [SerializeField] protected int maxAmount;
 
     [Header("Audio Settings")]
-    [SerializeField] protected AudioClip explosionClip;
-    [SerializeField] protected AudioClip bounceClip;
-    [SerializeField] protected float bounceCooldown = .15f;
-
+    [SerializeField] protected float bounceCooldown;
     protected AudioSource throwableSource;
+    protected AudioClip explosionClip;
+    protected AudioClip bounceClip;
+
     protected Collider[] hitColliders = new Collider[50];
     protected float delayTimer;
     protected bool hasBeenThown;
@@ -35,8 +38,8 @@ public class Throwable : MonoBehaviour
 
     protected virtual void Awake()
     {
+        Initialized();
         throwableSource = GetComponent<AudioSource>();
-
         explosionEffect.gameObject.SetActive(false);
         delayTimer = delay;
     }
@@ -61,6 +64,20 @@ public class Throwable : MonoBehaviour
         float impactForce = collision.relativeVelocity.magnitude;
         if (impactForce > 1.5f)
             throwableSource.PlayOneShot(bounceClip, Mathf.Clamp01(impactForce / 10f));
+    }
+
+    private void Initialized()
+    {
+        explosionDamage = throwableSO.ExplosionDamage;
+        explosionRadius = throwableSO.ExplosionRadius;
+        explosionForce = throwableSO.ExplosionForce;
+        delay = throwableSO.Delay;
+        upwardsModifier = throwableSO.UpwardsModifier;
+        maxAmount = throwableSO.MaxAmount;
+
+        explosionClip = throwableSO.ExplosionClip;
+        bounceClip = throwableSO.BounceClip;
+        bounceCooldown = throwableSO.BounceCooldown;
     }
 
     public void HandleBeThorwn() => hasBeenThown = true;

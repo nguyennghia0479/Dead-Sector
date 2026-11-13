@@ -2,26 +2,26 @@ using UnityEngine;
 
 public class GunInteraction : Interaction
 {
-    [SerializeField] private GunController gunPrefab;
-    [SerializeField] private int currentAmmos;
-    [SerializeField] private int totalAmmos;
+    [SerializeField] private GunSO gunSO;
+    [SerializeField] private int ammoInMag;
+    [SerializeField] private int currentReserveAmmo;
 
     protected override void Awake()
     {
         base.Awake();
-        currentAmmos = gunPrefab.MaxAmmos;
-        totalAmmos = gunPrefab.TotalAmmos;
+        ammoInMag = gunSO.MagazineSize;
+        currentReserveAmmo = gunSO.ReserveAmmo;
     }
 
     public override void OnInteract(PlayerController player)
     {
-        player.WeaponManager.PickupGun(gunPrefab, transform, currentAmmos, totalAmmos);
+        player.WeaponManager.PickupGun(gunSO.GunPrefab, transform, ammoInMag, currentReserveAmmo);
         Destroy(gameObject);
     }
 
-    public void SetAmmos(int currentAmmos, int totalAmmos)
+    public void SetAmmos(int ammoInMag, int currentReserveAmmo)
     {
-        this.currentAmmos = currentAmmos;
-        this.totalAmmos = totalAmmos;
+        this.ammoInMag = ammoInMag;
+        this.currentReserveAmmo = currentReserveAmmo;
     }
 }

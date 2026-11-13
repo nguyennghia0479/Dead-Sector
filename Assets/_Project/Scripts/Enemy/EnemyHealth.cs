@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class EnemyHealth : IHealth
 {
+    public event Action OnHit;
+
     [SerializeField] private int maxHP = 100;
     [SerializeField] private int currentHP;
 
@@ -27,7 +30,10 @@ public class EnemyHealth : IHealth
         if (currentHP <= 0)
         {
             isDeath = true;
+            enemy.HandleEnemyDeath();
             GameEvents.RaiseEnemyDeath(enemy);
         }
+
+        OnHit?.Invoke();
     }
 }

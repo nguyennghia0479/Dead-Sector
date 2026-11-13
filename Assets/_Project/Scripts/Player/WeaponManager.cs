@@ -65,8 +65,8 @@ public class WeaponManager : MonoBehaviour
         if (dropGun != null)
         {
             dropGun.SetGunAiming(false);
-            GunInteraction newGunPickup = Instantiate(dropGun.GunDropped, gunTransform.position + Vector3.up, gunTransform.rotation);
-            newGunPickup.SetAmmos(dropGun.CurrentAmmos, dropGun.TotalAmmos);
+            GunInteraction newGunPickup = Instantiate(dropGun.Gun.PickupPrefab, gunTransform.position + Vector3.up, gunTransform.rotation);
+            newGunPickup.SetAmmos(dropGun.AmmoInMagazine, dropGun.CurrentReserveAmmo);
             Destroy(dropGun.gameObject, .1f);
         }
     }
@@ -111,8 +111,8 @@ public class WeaponManager : MonoBehaviour
         GunController primaryGun = slots[currentIndex];
         GunController secondaryGun = slots[1 - currentIndex];
 
-        Sprite primaryIcon = primaryGun != null ? primaryGun.GunIcon : null;
-        Sprite secondaryIcon = secondaryGun != null ? secondaryGun.GunIcon : null;
+        Sprite primaryIcon = primaryGun != null ? primaryGun.Gun.GunIcon : null;
+        Sprite secondaryIcon = secondaryGun != null ? secondaryGun.Gun.GunIcon : null;
         GameEvents.RaiseWeaponSwitched(primaryIcon, secondaryIcon);
     }
 

@@ -25,6 +25,12 @@ public class EnemyAttackState : EnemyState
         enemy.HandleLookToPlayer();
         if (enemy.DistanceToPlayer > enemy.AttackDistance)
             stateMachine.ChangeState(enemy.ChaseState);
+
+        if (!enemy.EnemyAudio.IsPlaying() && sfxTimer <= 0)
+        {
+            sfxTimer = enemy.EnemyAudio.GetDelayTimeWithClipLength(false);
+            enemy.EnemyAudio.PlayGrowlSFX();
+        }
     }
 
     public override void Exit()

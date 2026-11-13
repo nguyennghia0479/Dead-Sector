@@ -11,7 +11,7 @@ public class GunAnimationBridge : MonoBehaviour
 
     public void CallDrawGunSFX()
     {
-        gunController.PlayDrawSFX();
+        gunController.GunAudio.PlayDrawSFX();
     }
 
     public void CallDrawGun()
@@ -38,7 +38,7 @@ public class GunAnimationBridge : MonoBehaviour
 
     public void CallOnShellInsertedSound()
     {
-        gunController.PlayReloadLoopSound();
+        gunController.GunAudio.PlayGunReloadLoopSFX();
     }
 
     public void CallReloadFinished()
