@@ -6909,10 +6909,11 @@ MonoBehaviour:
   gunSO: {fileID: 11400000, guid: e54d8bee1b4e6a243b22b52915a776a0, type: 2}
   ignoreLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 384
   muzzleFlash: {fileID: 4307771993083626349}
   hitDelay: 0.15
   gunDamage: 10
+  headDamageMultiplier: 0
   gunRange: 100
   fireRate: 0.2
   bulletForce: 10
@@ -7010,7 +7011,7 @@ MonoBehaviour:
     aimingSpeed: 10
     mainCam: {fileID: 0}
     scopeCam: {fileID: 0}
-    additionFOV: 0
+    additionFOV: 18.5
     magnification: 1
     renderTexture: {fileID: 8400000, guid: 3004fa2acc7892f48b7e1588c364996f, type: 2}
     renderer: {fileID: 513056766981173240}

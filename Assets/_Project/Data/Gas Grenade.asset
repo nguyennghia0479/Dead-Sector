@@ -12,9 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d06917f7c8528d241b41e2c151fe72b8, type: 3}
   m_Name: Gas Grenade
   m_EditorClassIdentifier: Assembly-CSharp::ThrowableSO
+  baseChance: 15
+  chanceIncreasePerWave: 0.5
+  maxChance: 30
+  dropWeight: 30
   throwableName: Gas Grenade
   throwableIcon: {fileID: 21300000, guid: 22e4367ba79259944801e0850f30c998, type: 3}
   throwablePrefab: {fileID: -3790591131304768875, guid: 1183ef53b7ebeb741a44dabcf380fdc4, type: 3}
+  pickupPrefab: {fileID: 7470403034200667043, guid: 749ab549cda8b2d459b4548fa4199284, type: 3}
   explosionDamage: 150
   explosionRadius: 5
   explosionForce: 250

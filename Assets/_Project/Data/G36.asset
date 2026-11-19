@@ -12,11 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
   m_Name: G36
   m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  baseChance: 8
+  chanceIncreasePerWave: 0.3
+  maxChance: 20
+  dropWeight: 24
   gunName: G36
   gunIcon: {fileID: 21300000, guid: 5deddad7ee0748041ac5e8908154402d, type: 3}
   gunPrefab: {fileID: 464174545074305150, guid: a788446a5cafa4c4caf144ceb40c808c, type: 3}
   pickupPrefab: {fileID: 9026381826743856282, guid: eabe37934ef62674caa27db89524af9b, type: 3}
-  gunDamage: 10
+  gunDamage: 15
   gunRange: 100
   fireRate: 0.2
   bulletForce: 10

@@ -7,22 +7,23 @@ public class WaveManager : MonoBehaviour
     [Header("Wave Settings")]
     [SerializeField] private float timeToStartSpawnEnemy = 10f;
     [SerializeField] private float timeToStartNewWave = 90f;
+    [SerializeField] private int currentWave;
     private WaitForSeconds startSpawnEnemyWaitTime;
     private float startNewWaveTimer;
     private bool isWaveStarting;
-    private bool canSpawn = true;
+    private bool waveEnable;
 
     [Header("Spawn Enemy Settings")]
     [SerializeField] private EnemyController enemyPrefab;
     [SerializeField] private int enemySpawnAmount = 5;
     [SerializeField] private Vector2 timeToSpawnEnemyRange = new(1f, 5f);
-
     [SerializeField] private List<EnemyController> aliveEnemies;
-    private SpawnManager spawnManager;
+    private EnemySpawnPoint enemySpawnPoint;
 
     private void Awake()
     {
         startSpawnEnemyWaitTime = new WaitForSeconds(timeToStartSpawnEnemy);
+        currentWave = 1;
     }
 
     private void OnEnable()
@@ -39,14 +40,14 @@ public class WaveManager : MonoBehaviour
 
     private void Start()
     {
-        spawnManager = FindAnyObjectByType<SpawnManager>();
+        enemySpawnPoint = FindAnyObjectByType<EnemySpawnPoint>();
 
-        StartCoroutine(SpawnWaveRoutine());
+        //StartCoroutine(SpawnWaveRoutine());
     }
 
     private void Update()
     {
-        if (!canSpawn) return;
+        if (!waveEnable) return;
 
         startNewWaveTimer += Time.deltaTime;
         if (startNewWaveTimer > timeToStartNewWave && !isWaveStarting)
@@ -70,9 +71,9 @@ public class WaveManager : MonoBehaviour
     {
         for (int i = 0; i < enemySpawnAmount; i++)
         {
-            if (!canSpawn) yield break;
+            if (!waveEnable) yield break;
 
-            Vector3 spawnPosition = spawnManager.GetRandomSpawnPosition();
+            Vector3 spawnPosition = enemySpawnPoint.GetRandomSpawnPosition();
             EnemyController newEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
             aliveEnemies.Add(newEnemy);
 
@@ -89,7 +90,7 @@ public class WaveManager : MonoBehaviour
 
     private void HandlePlayerDeath()
     {
-        canSpawn = false;
+        waveEnable = false;
     }
 
     private void HandleEnemyDeath(EnemyController enemy)
@@ -104,6 +105,8 @@ public class WaveManager : MonoBehaviour
 
         if (aliveEnemies.Count <= 0)
         {
+            GameEvents.RaiseWaveCompleted(currentWave);
+            currentWave++;
             enemySpawnAmount++;
             ResetStartNewWave();
             StartCoroutine(SpawnWaveRoutine());

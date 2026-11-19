@@ -473,10 +473,11 @@ MonoBehaviour:
   gunSO: {fileID: 11400000, guid: 57696f60d68840b448e0e7acff858256, type: 2}
   ignoreLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 384
   muzzleFlash: {fileID: 7125264008388562836}
   hitDelay: 0.15
   gunDamage: 20
+  headDamageMultiplier: 0
   gunRange: 100
   fireRate: 1
   bulletForce: 2.5

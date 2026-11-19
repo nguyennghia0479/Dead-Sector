@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7411132191286751928}
   - component: {fileID: 6762398750810583326}
   - component: {fileID: 6541497444962136807}
+  - component: {fileID: -393561881580835103}
   m_Layer: 0
   m_Name: BulletTracer
   m_TagString: Untagged
@@ -164,3 +165,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98249c2020f396946a98aeec5e6ad9fd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BulletMovement
+--- !u!114 &-393561881580835103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7295459469188402645}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6536ccfef7ef6e1478b4a6be09b4aa4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PooledObject

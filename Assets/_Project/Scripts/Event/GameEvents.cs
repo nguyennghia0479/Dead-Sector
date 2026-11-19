@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class GameEvents
@@ -11,6 +12,12 @@ public static class GameEvents
     public static event Action OnPlayerDeath;
     public static event Action OnPlayerHit;
     public static event Action OnPlayerHealed;
+    public static event Action<float> OnMedicalUsed;
+    public static event Action<int> OnWaveCompleted;
+    public static event Action<List<Sprite>> OnItemsDropped;
+    public static event Action<AudioClip, Vector3, float> OnBulletHit;
+    public static event Action OnSafeZoneEntered;
+    public static event Action<PlayerController> OnSafeZoneExited;
 
     public static void RaiseWeaponSwitched(Sprite primaryGun, Sprite secondaryGun)
     {
@@ -50,5 +57,35 @@ public static class GameEvents
     public static void RaisePlayerHealed()
     {
         OnPlayerHealed?.Invoke();
+    }
+
+    public static void RaiseMedicalUsed(float healPercent)
+    {
+        OnMedicalUsed?.Invoke(healPercent);
+    }
+
+    public static void RaiseWaveCompleted(int currentWave)
+    {
+        OnWaveCompleted?.Invoke(currentWave);
+    }
+
+    public static void RaiseItemsDropped(List<Sprite> items)
+    {
+        OnItemsDropped?.Invoke(items);
+    }
+
+    public static void RaiseBulletHit(AudioClip clip, Vector3 position, float volume)
+    {
+        OnBulletHit?.Invoke(clip, position, volume);
+    }
+
+    public static void RaiseSafeZoneEntered()
+    {
+        OnSafeZoneEntered?.Invoke();
+    }
+
+    public static void RaiseSafeZoneExited(PlayerController player)
+    {
+        OnSafeZoneExited?.Invoke(player);
     }
 }

@@ -12,11 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
   m_Name: M870
   m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  baseChance: 8
+  chanceIncreasePerWave: 0.3
+  maxChance: 20
+  dropWeight: 24
   gunName: M870
   gunIcon: {fileID: 21300000, guid: c5440bcc63a7dad4a9413a28d1978be2, type: 3}
   gunPrefab: {fileID: 1782458673767181581, guid: de78da808e3fa704fa4e410fd4ceccaf, type: 3}
   pickupPrefab: {fileID: 5531797214635404002, guid: 34ccefbd050006e47a0fb24cadd3efc2, type: 3}
   gunDamage: 10
+  headDamageMultiplier: 3
   gunRange: 100
   fireRate: 1
   bulletForce: 2.5

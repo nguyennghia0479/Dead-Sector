@@ -12,11 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
   m_Name: M82
   m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  baseChance: 2
+  chanceIncreasePerWave: 0.1
+  maxChance: 10
+  dropWeight: 8
   gunName: M82
   gunIcon: {fileID: 21300000, guid: f8c8b9edabfcc0e47ac88dc73f91b520, type: 3}
   gunPrefab: {fileID: 184745738633260145, guid: 14da82a6d7e1a8741b4f288d8a41642c, type: 3}
   pickupPrefab: {fileID: 169368663636054219, guid: 40881fbb9a033d247a04ff22928acb72, type: 3}
-  gunDamage: 10
+  gunDamage: 100
+  headDamageMultiplier: 3
   gunRange: 100
   fireRate: 0.7
   bulletForce: 15

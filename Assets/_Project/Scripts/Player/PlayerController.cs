@@ -224,6 +224,7 @@ public class PlayerController : EntityController
         {
             isAiming = !isAiming;
             gunAssigned.SetGunAiming(isAiming);
+            playerCam.HandleSniperAiming(isAiming && gunAssigned.IsSniper);
         }
     }
 
