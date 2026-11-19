@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 219799451300899980}
   - component: {fileID: 9073607086771563841}
   - component: {fileID: 2488204142177927531}
+  - component: {fileID: -6259444236690385861}
+  - component: {fileID: 2275883058057564199}
   m_Layer: 0
   m_Name: HumanImpact
   m_TagString: Untagged
@@ -2713,6 +2715,32 @@ ParticleSystemRenderer:
   m_MeshWeighting1: 1
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
+--- !u!114 &-6259444236690385861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295026904903343069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6643ecb1d2be33499830a77e0352bbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HitVFX
+--- !u!114 &2275883058057564199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 295026904903343069}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6536ccfef7ef6e1478b4a6be09b4aa4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PooledObject
+  originalParent: {fileID: 0}
+  originalScale: {x: 0, y: 0, z: 0}
 --- !u!1 &2079706908082343971
 GameObject:
   m_ObjectHideFlags: 0

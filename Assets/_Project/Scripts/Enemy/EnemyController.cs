@@ -32,6 +32,7 @@ public class EnemyController : EntityController
     private PlayerController player;
     private bool isPlayHitAnimation;
 
+    public EnemyHealth EnemyHealth => enemyHealth;
     public EnemyAudio EnemyAudio => enemyAudio;
     public float IdleDuration => idleDuration;
     public float WalkSpeed => walkSpeed;
@@ -57,7 +58,7 @@ public class EnemyController : EntityController
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
-        collider = GetComponent<Collider>();
+        collider = GetComponentInChildren<Collider>();
         GameObject playerObject = GameObject.FindWithTag("Player");
         player = playerObject.GetComponent<PlayerController>();
 
@@ -81,7 +82,7 @@ public class EnemyController : EntityController
     private void Start()
     {
         enemyCombat = GetComponentInChildren<EnemyCombat>();
-        enemyCombat.Initialized(attackDamage, playerLayer);
+        enemyCombat.Initialized(attackDamage, playerLayer, this);
 
         stateMachine.Initialized(IdleState);
         enemyHealth.Initialzied(this);

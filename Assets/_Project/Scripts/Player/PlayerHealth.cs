@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerHealth : MonoBehaviour, IHealth
 {
@@ -17,23 +16,30 @@ public class PlayerHealth : MonoBehaviour, IHealth
         currentHP = maxHP;
     }
 
+    private void OnEnable()
+    {
+        GameEvents.OnMedicalUsed += HandleMedicalUsed;
+    }
+
+    private void OnDisable()
+    {
+        GameEvents.OnMedicalUsed += HandleMedicalUsed;
+    }
+
     private void Start()
     {
         UpdateHealthUI();
+    }  
+
+    private void HandleMedicalUsed(float healPercent)
+    {
+        int healAmount = Mathf.CeilToInt(maxHP * healPercent);
+        Healing(healAmount);
     }
 
-    private void Update()
+    private void Healing(int healAmount)
     {
-        if (Keyboard.current.mKey.wasPressedThisFrame)
-            Healing();
-
-        if (Keyboard.current.nKey.wasPressedThisFrame)
-            TakeDamage(10);
-    }
-
-    private void Healing()
-    {
-        currentHP += 10;
+        currentHP += healAmount;
         currentHP = Mathf.Min(currentHP, maxHP);
         UpdateHealthUI();
         GameEvents.RaisePlayerHealed();

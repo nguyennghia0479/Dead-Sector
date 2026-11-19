@@ -14,9 +14,12 @@ public class SurfaceHitEffect
 
     private Dictionary<PhysicsMaterial, HitEffect> physicsMaterialDic = new();
     private Dictionary<string, HitEffect> tagDic = new();
+    private WaitForSeconds waitTime;
 
     public void Initialized()
     {
+        waitTime = new WaitForSeconds(lifeTime);
+
         foreach (var hitEffect in hitEffects)
         {
             if (hitEffect.physicsMaterials != null && hitEffect.physicsMaterials.Length > 0)
@@ -51,14 +54,15 @@ public class SurfaceHitEffect
 
         if (hitVFX != null)
         {
-            GameObject newHitImpact = Object.Instantiate(hitVFX, hit.point, Quaternion.LookRotation(hit.normal));
-            newHitImpact.transform.parent = hit.transform;
-            Object.Destroy(newHitImpact, lifeTime);
+            GameObject hitPool = ObjectPoolManager.Instance.GetPool(hitVFX, hit.point, Quaternion.LookRotation(hit.normal));
+            hitPool.transform.SetParent(hit.transform);
+            if (hitPool != null && hitPool.TryGetComponent<HitVFX>(out var newHitVFX))
+                newHitVFX.Initialized(waitTime);
         }
 
         if (hitSFX != null)
-            AudioSource.PlayClipAtPoint(hitSFX, hit.point, volume);
-        
+            GameEvents.RaiseBulletHit(hitSFX, hit.point, volume);
+            //AudioSource.PlayClipAtPoint(hitSFX, hit.point, volume);    
     }
 
     private HitEffect GetHitEffect(RaycastHit hit)

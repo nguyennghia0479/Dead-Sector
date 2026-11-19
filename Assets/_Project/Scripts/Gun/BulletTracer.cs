@@ -11,7 +11,8 @@ public class BulletTracer
 
     public void ApplyTracer(Vector3 spawnPosition, Vector3 targetPosition)
     {
-        BulletMovement newBullet = Object.Instantiate(bulletPrefab, spawnPosition, Quaternion.identity, bulletHolder);
-        newBullet.SetupBullet(targetPosition, moveSpeed, lifeTime);
+        GameObject bulletPool = ObjectPoolManager.Instance.GetPool(bulletPrefab.gameObject, spawnPosition, Quaternion.identity);
+        if (bulletPool != null && bulletPool.TryGetComponent<BulletMovement>(out var newBullet))
+            newBullet.Initialized(targetPosition, moveSpeed, lifeTime);
     }
 }

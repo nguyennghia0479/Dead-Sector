@@ -12,6 +12,7 @@ public class GunController : MonoBehaviour
 
     [Header("Gun Settings")]
     [SerializeField] private int gunDamage;
+    [SerializeField] private float headDamageMultiplier;
     [SerializeField] private float gunRange;
     [SerializeField] private float fireRate;
     private float nextFireTimer;
@@ -109,6 +110,7 @@ public class GunController : MonoBehaviour
         if (gunSO == null) return;
 
         gunDamage = gunSO.GunDamage;
+        headDamageMultiplier = gunSO.HeadDamageMultiplier;
         gunRange = gunSO.GunRange;
         fireRate = gunSO.FireRate;
         bulletForce = gunSO.BulletForce;
@@ -186,11 +188,15 @@ public class GunController : MonoBehaviour
     private IEnumerator BulletHitRoutine(RaycastHit hit)
     {
         yield return hitWaitTime;
-
         if (hit.collider.CompareTag("Enemy"))
         {
-            if (hit.collider.TryGetComponent<EnemyController>(out var enemy))
-                enemy.TakeHit(-hit.normal, bulletForce, gunDamage);
+            int finalDamage = gunDamage;
+            if (hit.collider.GetComponent<HitHead>() != null)
+                finalDamage = Mathf.CeilToInt(finalDamage * headDamageMultiplier);
+
+            EnemyController enemy = hit.collider.GetComponentInParent<EnemyController>();
+            if (enemy != null)
+                enemy.TakeHit(-hit.normal, bulletForce, finalDamage);
         }
 
         if (hit.collider.TryGetComponent<Rigidbody>(out var rb))

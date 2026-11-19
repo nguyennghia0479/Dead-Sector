@@ -12,6 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee29a4943ac0e8446ab03d1c6543be79, type: 3}
   m_Name: Glock17
   m_EditorClassIdentifier: Assembly-CSharp::GunSO
+  baseChance: 15
+  chanceIncreasePerWave: 0.5
+  maxChance: 35
+  dropWeight: 30
   gunName: Glock 17
   gunIcon: {fileID: 21300000, guid: 514a42e81621e13418c4cb8b4e7cc502, type: 3}
   gunPrefab: {fileID: 2127285000490302400, guid: 203171d3799b3fe41b62564085b6d5ae, type: 3}
