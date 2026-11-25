@@ -22,6 +22,7 @@ public class PlayerAudio
     [SerializeField] private AudioClip[] deadClips;
     [SerializeField] private AudioClip[] breathClips;
 
+
     public void HandleFootsteps(bool isMoving, bool isSprinting, bool isCrouching, bool isGrounded)
     {
         if (footSource == null || footClips == null || footClips.Length == 0)
@@ -93,6 +94,7 @@ public class PlayerAudio
             clip = clips[Random.Range(0, clips.Length)];
         else
             clip = clips[0];
+
         playerSource.PlayOneShot(clip);
     }
 }

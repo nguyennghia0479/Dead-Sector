@@ -7,6 +7,7 @@ public class ThrowableInteraction : Interaction
 
     public override void OnInteract(PlayerController player)
     {
+        base.OnInteract(player);
         player.WeaponManager.PickupThrowable(throwableSO.ThrowablePrefab, amount);
         Destroy(gameObject);
     }

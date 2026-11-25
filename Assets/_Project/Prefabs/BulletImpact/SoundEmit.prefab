@@ -58,8 +58,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6536ccfef7ef6e1478b4a6be09b4aa4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PooledObject
-  originalParent: {fileID: 0}
-  originalScale: {x: 0, y: 0, z: 0}
 --- !u!82 &628278766566207305
 AudioSource:
   m_ObjectHideFlags: 0
@@ -69,7 +67,7 @@ AudioSource:
   m_GameObject: {fileID: 8407880109305563144}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -4299355644702141783, guid: e013d57cc4b06024486e685d721d7776, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

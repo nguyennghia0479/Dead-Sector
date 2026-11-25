@@ -6,7 +6,6 @@ public class SurfaceHitEffect
 {
     [Header("Surface Hit Settings")]
     [SerializeField] private GameObject defaultVFX;
-    [SerializeField] private AudioClip defaultSFX;
     [SerializeField] private float lifeTime = 5f;
 
     [Space]
@@ -47,9 +46,7 @@ public class SurfaceHitEffect
         if (hit.collider == null) return;
 
         HitEffect hitEffect = GetHitEffect(hit);
-      
         GameObject hitVFX = hitEffect != null ? hitEffect.hitVFX : defaultVFX;
-        AudioClip hitSFX = hitEffect != null ? hitEffect.hitSFX : defaultSFX;
         float volume = hitEffect != null ? hitEffect.volume : 1f;
 
         if (hitVFX != null)
@@ -57,12 +54,11 @@ public class SurfaceHitEffect
             GameObject hitPool = ObjectPoolManager.Instance.GetPool(hitVFX, hit.point, Quaternion.LookRotation(hit.normal));
             hitPool.transform.SetParent(hit.transform);
             if (hitPool != null && hitPool.TryGetComponent<HitVFX>(out var newHitVFX))
+            {
                 newHitVFX.Initialized(waitTime);
+                GameEvents.RaiseBulletHit(newHitVFX.SoundType, hit.point, volume);
+            }
         }
-
-        if (hitSFX != null)
-            GameEvents.RaiseBulletHit(hitSFX, hit.point, volume);
-            //AudioSource.PlayClipAtPoint(hitSFX, hit.point, volume);    
     }
 
     private HitEffect GetHitEffect(RaycastHit hit)
@@ -84,6 +80,5 @@ public class HitEffect
     public PhysicsMaterial[] physicsMaterials;
     public string[] tags;
     public GameObject hitVFX;
-    public AudioClip hitSFX;
     public float volume = 1;
 }

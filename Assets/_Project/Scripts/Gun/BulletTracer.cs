@@ -7,7 +7,6 @@ public class BulletTracer
     [SerializeField] private BulletMovement bulletPrefab;
     [SerializeField] private float moveSpeed = 300f;
     [SerializeField] private float lifeTime = 2f;
-    [SerializeField] private Transform bulletHolder;
 
     public void ApplyTracer(Vector3 spawnPosition, Vector3 targetPosition)
     {

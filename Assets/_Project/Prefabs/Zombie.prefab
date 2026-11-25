@@ -1881,7 +1881,7 @@ MonoBehaviour:
   knockbackDecay: 8
   enemyCombat: {fileID: 0}
   enemyHealth:
-    maxHP: 100
+    maxHP: 10
     currentHP: 0
   enemyAudio:
     delay: 1.5
@@ -1993,7 +1993,7 @@ AudioSource:
   m_GameObject: {fileID: 6449923951002137445}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -4299355644702141783, guid: e013d57cc4b06024486e685d721d7776, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

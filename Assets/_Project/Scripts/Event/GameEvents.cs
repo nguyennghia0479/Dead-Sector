@@ -13,11 +13,14 @@ public static class GameEvents
     public static event Action OnPlayerHit;
     public static event Action OnPlayerHealed;
     public static event Action<float> OnMedicalUsed;
+    public static event Action<float> OnWaveStarted;
     public static event Action<int> OnWaveCompleted;
     public static event Action<List<Sprite>> OnItemsDropped;
-    public static event Action<AudioClip, Vector3, float> OnBulletHit;
+    public static event Action<float> OnItemPicked;
+    public static event Action<SoundType, Vector3, float> OnBulletHit;
     public static event Action OnSafeZoneEntered;
     public static event Action<PlayerController> OnSafeZoneExited;
+    public static event Action<bool> OnPauseGameBtnPressed;
 
     public static void RaiseWeaponSwitched(Sprite primaryGun, Sprite secondaryGun)
     {
@@ -64,6 +67,11 @@ public static class GameEvents
         OnMedicalUsed?.Invoke(healPercent);
     }
 
+    public static void RaiseWaveStarted(float volume = 1f)
+    {
+        OnWaveStarted?.Invoke(volume);
+    }
+
     public static void RaiseWaveCompleted(int currentWave)
     {
         OnWaveCompleted?.Invoke(currentWave);
@@ -74,9 +82,14 @@ public static class GameEvents
         OnItemsDropped?.Invoke(items);
     }
 
-    public static void RaiseBulletHit(AudioClip clip, Vector3 position, float volume)
+    public static void RaiseItemPicked(float volume = 1f)
     {
-        OnBulletHit?.Invoke(clip, position, volume);
+        OnItemPicked?.Invoke(volume);
+    }
+
+    public static void RaiseBulletHit(SoundType soundType, Vector3 position, float volume)
+    {
+        OnBulletHit?.Invoke(soundType, position, volume);
     }
 
     public static void RaiseSafeZoneEntered()
@@ -87,5 +100,10 @@ public static class GameEvents
     public static void RaiseSafeZoneExited(PlayerController player)
     {
         OnSafeZoneExited?.Invoke(player);
+    }
+
+    public static void RaisePauseGameButtonPressed(bool isGamePaused)
+    {
+        OnPauseGameBtnPressed?.Invoke(isGamePaused);
     }
 }

@@ -1,7 +1,7 @@
-using System;
 using UnityEngine;
 
-public class PlayerHealth : MonoBehaviour, IHealth
+[System.Serializable]
+public class PlayerHealth : IHealth
 {
     [SerializeField] private int maxHP = 100;
 
@@ -11,27 +11,14 @@ public class PlayerHealth : MonoBehaviour, IHealth
     public int CurrentHP => currentHP;
     public bool IsDeath => isDeath;
 
-    private void Awake()
+    public void ResetHealth()
     {
+        isDeath = false;
         currentHP = maxHP;
-    }
-
-    private void OnEnable()
-    {
-        GameEvents.OnMedicalUsed += HandleMedicalUsed;
-    }
-
-    private void OnDisable()
-    {
-        GameEvents.OnMedicalUsed += HandleMedicalUsed;
-    }
-
-    private void Start()
-    {
         UpdateHealthUI();
     }  
 
-    private void HandleMedicalUsed(float healPercent)
+    public void HandleMedicalUsed(float healPercent)
     {
         int healAmount = Mathf.CeilToInt(maxHP * healPercent);
         Healing(healAmount);

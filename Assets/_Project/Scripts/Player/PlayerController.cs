@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : EntityController
 {
@@ -26,7 +27,7 @@ public class PlayerController : EntityController
     [SerializeField] private float sprintRecoveryRate = 1f;
     [SerializeField] private bool isSprinting;
     [SerializeField] private bool isMoving;
-    [SerializeField] private float sprintTimer;
+    private float sprintTimer;
 
     [Header("Throw Settings")]
     [SerializeField] private float throwForce = 12f;
@@ -35,12 +36,13 @@ public class PlayerController : EntityController
     [Header("References")]
     [SerializeField] private Transform gunHolder;
     [SerializeField] private Camera mainCamera;
+    [SerializeField] private Camera headCamera;
+    [SerializeField] private PlayerHealth playerHealth;
     [SerializeField] private PlayerCamera playerCam;
     [SerializeField] private HeadBob headBob;
     [SerializeField] private FullBodyAnimations bodyAnimations;
     [SerializeField] private PlayerAudio playerAudio;
 
-    private PlayerHealth playerHealth;
     private CharacterController controller;
     private WeaponManager weaponManager;
     private GunController gunAssigned;
@@ -51,7 +53,10 @@ public class PlayerController : EntityController
     private Vector2 moveInput;
     private Vector3 cameraRecoilRotation;
     private bool isAiming;
-    private float defaultMainCamFOV;
+    private float originalMainCamFOV;
+    private Vector3 originalStartPos;
+    private Quaternion originalStartRot;
+    private Vector3 originalMainCamPos;
 
     public bool IsCrouching => isCrouching;
     public bool IsSprinting => isSprinting;
@@ -59,15 +64,15 @@ public class PlayerController : EntityController
     public PlayerHealth PlayerHealth => playerHealth;
     public GameInput GameInput => gameInput;
     public WeaponManager WeaponManager => weaponManager;
-    public GunController GunActivated => gunAssigned;
+    public GunController GunAssigned => gunAssigned;
     public ThrowableController ThrowableActivated => throwableAssigned;
     public ScopeCamera ScopeCamera => scopeCamera;
     public ADS ADS => aimDotSight;
     public Transform GunHolder => gunHolder;
+    public PlayerCamera PlayerCamera => playerCam;
 
     private void Awake()
     {
-        playerHealth = GetComponent<PlayerHealth>();
         controller = GetComponent<CharacterController>();
         gameInput = GetComponent<GameInput>();
         weaponManager = GetComponent<WeaponManager>();
@@ -78,24 +83,33 @@ public class PlayerController : EntityController
         currentSpeed = walkSpeed;
         originalHeight = controller.height;
         crouchHeight = originalHeight / 2f;
-        defaultMainCamFOV = mainCamera.fieldOfView;
+        originalMainCamFOV = mainCamera.fieldOfView;
+        originalStartPos = transform.position;
+        originalStartRot = transform.rotation;
+        originalMainCamPos = mainCamera.transform.localPosition;
     }
 
     private void Start()
     {
         playerCam.Initialized();
         headBob.Initialized(mainCamera.transform.localPosition);
-        throwableAssigned.Initialized(throwForce, throwSpawn);
+        throwableAssigned.Initialized(throwForce, throwSpawn, this);
         throwableAssigned.gameObject.SetActive(false);
         UIManager.Instance.HUDInitialzied(this);
+        playerHealth.ResetHealth();
         Initialized(playerHealth);
     }
 
     private void OnEnable()
     {
-        GameEvents.OnPlayerDeath += HandlePlayerDeath;
-        GameEvents.OnPlayerHealed += HandlePlayerHealed;
+        UIEvents.OnNewGameBtnClicked += HandleNewGameButtonClicked;
+        UIEvents.OnMainMenuBtnClicked += HandleMainMenuButtonClicked;
+        UIEvents.OnSensitivitySliderChanged += HandleSensitivitySliderChanged;
+
         GameEvents.OnPlayerHit += HandlePlayerHit;
+        GameEvents.OnMedicalUsed += HandleMedicalUsed;
+        GameEvents.OnPlayerHealed += HandlePlayerHealed;
+        GameEvents.OnPlayerDeath += HandlePlayerDeath;
 
         gameInput.OnJumpPressed += HandleJumpPressed;
         gameInput.OnCrouchPressed += HandleCrouchPressed;
@@ -110,9 +124,14 @@ public class PlayerController : EntityController
 
     private void OnDisable()
     {
-        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
-        GameEvents.OnPlayerHealed -= HandlePlayerHealed;
+        UIEvents.OnNewGameBtnClicked -= HandleNewGameButtonClicked;
+        UIEvents.OnMainMenuBtnClicked -= HandleMainMenuButtonClicked;
+        UIEvents.OnSensitivitySliderChanged -= HandleSensitivitySliderChanged;
+
         GameEvents.OnPlayerHit -= HandlePlayerHit;
+        GameEvents.OnMedicalUsed -= HandleMedicalUsed;
+        GameEvents.OnPlayerHealed -= HandlePlayerHealed;
+        GameEvents.OnPlayerDeath -= HandlePlayerDeath;
 
         gameInput.OnJumpPressed -= HandleJumpPressed;
         gameInput.OnCrouchPressed -= HandleCrouchPressed;
@@ -127,7 +146,7 @@ public class PlayerController : EntityController
 
     private void Update()
     {
-        if (playerHealth.IsDeath) return;
+        if (playerHealth.IsDeath || !GameManager.Instance.IsMainGameState()) return;
 
         isGrounded = controller.isGrounded;
         HandleVerticalVelocity();
@@ -141,6 +160,9 @@ public class PlayerController : EntityController
         HandleFootstepsSFX();
         HandleLandingSFX();
         HandleBurnHit();
+
+        if (Keyboard.current.lKey.wasPressedThisFrame)
+            playerHealth.TakeDamage(9999);
     }
 
     private void HandleVerticalVelocity()
@@ -213,7 +235,7 @@ public class PlayerController : EntityController
     {
         if (gunAssigned != null)
         {
-            float targetFOV = isAiming ? gunAssigned.GunAiming.AimMainCamFOV : defaultMainCamFOV;
+            float targetFOV = isAiming ? gunAssigned.GunAiming.AimMainCamFOV : originalMainCamFOV;
             mainCamera.fieldOfView = Mathf.Lerp(mainCamera.fieldOfView, targetFOV, smoothSpeed * Time.deltaTime);
         }
     }
@@ -240,13 +262,42 @@ public class PlayerController : EntityController
         throwableAssigned.gameObject.SetActive(true);
     }
 
-    private void HandlePlayerDeath()
+    private void HandleNewGameButtonClicked()
     {
-        playerAudio.PlayDeadSFX();
-        gameInput.DisableInput();
-        gunAssigned.gameObject.SetActive(false);
-        bodyAnimations.HandleDeathAnimation(IsCrouching);
-        mainCamera.enabled = false;
+        bodyAnimations.ResetAnimation();
+        mainCamera.enabled = true;
+        headCamera.gameObject.SetActive(false);
+        mainCamera.transform.SetLocalPositionAndRotation(originalMainCamPos, Quaternion.identity);
+        mainCamera.fieldOfView = originalMainCamFOV;
+
+        transform.SetPositionAndRotation(originalStartPos, originalStartRot);
+        playerHealth.ResetHealth();
+        playerCam.ResetRotation();
+        throwableAssigned.ResetThrowable();
+        controller.enabled = true;
+        isCrouching = false;
+        isAiming = false;
+    }
+
+    private void HandleMainMenuButtonClicked()
+    {
+        controller.enabled = false;
+    }
+
+    private void HandleSensitivitySliderChanged(float value)
+    {
+        playerCam.UpdateMouseSensitivity(value);
+    }
+
+    private void HandlePlayerHit()
+    {
+        if (!playerHealth.IsDeath)
+            playerAudio.PlayHurtSFX();
+    }
+
+    private void HandleMedicalUsed(float healPercent)
+    {
+        playerHealth.HandleMedicalUsed(healPercent);
     }
 
     private void HandlePlayerHealed()
@@ -255,10 +306,14 @@ public class PlayerController : EntityController
             playerAudio.PlayHealSFX();
     }
 
-    private void HandlePlayerHit()
+    private void HandlePlayerDeath()
     {
-        if (!playerHealth.IsDeath)
-            playerAudio.PlayHurtSFX();
+        headCamera.gameObject.SetActive(true);
+        gunAssigned.gameObject.SetActive(false);
+        playerAudio.PlayDeadSFX();
+        bodyAnimations.HandleDeathAnimation(IsCrouching);
+        controller.enabled = false;
+        mainCamera.enabled = false;
     }
 
     private void HandleJumpPressed()

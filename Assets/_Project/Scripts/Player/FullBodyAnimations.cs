@@ -7,6 +7,10 @@ public class FullBodyAnimations
     [SerializeField] private float dampTime = .01f;
     [SerializeField] private float animationSpeedMultiplier = 1.5f;
 
+    [Space]
+    [SerializeField] private Transform fullBody;
+
+    private static readonly int LocomotionHash = Animator.StringToHash("Locomotion");
     private static readonly int HorizontalHash = Animator.StringToHash("horizontal");
     private static readonly int VerticalHash = Animator.StringToHash("vertical");
     private static readonly int IsCrouchingHash = Animator.StringToHash("isCrouching");
@@ -43,5 +47,19 @@ public class FullBodyAnimations
             else
                 animator.SetTrigger(DeathHash_2);
         }
+    }
+
+    public void ResetAnimation()
+    {
+        fullBody.SetLocalPositionAndRotation(Vector3.zero, Quaternion.identity);
+        animator.ResetTrigger(DeathHash_1);
+        animator.ResetTrigger(DeathHash_2);
+        animator.ResetTrigger(CrouchDeathHash);
+        animator.applyRootMotion = false;
+
+        animator.Play(LocomotionHash, 0, 0f);
+        animator.Update(0f);
+        animator.SetFloat(HorizontalHash, 0, dampTime, Time.deltaTime);
+        animator.SetFloat(VerticalHash, 0, dampTime, Time.deltaTime);
     }
 }
