@@ -16426,19 +16426,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grenade
   throwableSO: {fileID: 11400000, guid: 63debef1280296c499915e913ce6418f, type: 2}
+  throwableType: 0
   hitLayer:
     serializedVersion: 2
     m_Bits: 640
   explosionEffect: {fileID: 979655453943382955}
-  throwableType: 0
   explosionDamage: 150
   explosionRadius: 5
-  delay: 3
   explosionForce: 250
+  delay: 3
   upwardsModifier: 3
   maxAmount: 4
-  explosionClip: {fileID: 8300000, guid: 1589f755989788e46a57b0c6c199ed8d, type: 3}
-  bounceClip: {fileID: 8300000, guid: 166574453444b664fa6601891adf7b12, type: 3}
   bounceCooldown: 0.15
 --- !u!54 &665641008340179178
 Rigidbody:
@@ -16499,7 +16497,7 @@ AudioSource:
   m_GameObject: {fileID: 6389801748649239401}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -4299355644702141783, guid: e013d57cc4b06024486e685d721d7776, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

@@ -52,6 +52,6 @@ public class Interaction : MonoBehaviour, IInteractable
 
     public virtual void OnInteract(PlayerController player)
     {
-        
+        GameEvents.RaiseItemPicked();
     }
 }

@@ -6963,9 +6963,9 @@ MonoBehaviour:
     bulletPrefab: {fileID: 6541497444962136807, guid: d1af02f20c0f7e04da4c3df41f22c0f7, type: 3}
     moveSpeed: 300
     lifeTime: 2
-    bulletHolder: {fileID: 0}
   surfaceHitEffect:
     defaultVFX: {fileID: 1816037574618450646, guid: 40aa256f424685e46aac089a70511235, type: 3}
+    defaultSoundType: 4
     defaultSFX: {fileID: 8300000, guid: 837765465950a6b40ab945677106bb2c, type: 3}
     lifeTime: 5
     hitEffects:
@@ -6974,6 +6974,7 @@ MonoBehaviour:
       tags:
       - Concrete
       hitVFX: {fileID: 835317673384127488, guid: 03816382a868dd749823c761a259ebb1, type: 3}
+      soundType: 3
       hitSFX: {fileID: 8300000, guid: ee916bf16c3148e469040d0165f7628c, type: 3}
       volume: 1
     - physicsMaterials:
@@ -6981,6 +6982,7 @@ MonoBehaviour:
       tags:
       - Dirt
       hitVFX: {fileID: 6718254973854376030, guid: 8d5ed694f51e1d3409722243e240db9b, type: 3}
+      soundType: 5
       hitSFX: {fileID: 8300000, guid: ebb1967173bd1224ea29c12f19a1b781, type: 3}
       volume: 1
     - physicsMaterials:
@@ -6988,6 +6990,7 @@ MonoBehaviour:
       tags:
       - Metal
       hitVFX: {fileID: 1816037574618450646, guid: 40aa256f424685e46aac089a70511235, type: 3}
+      soundType: 4
       hitSFX: {fileID: 8300000, guid: 837765465950a6b40ab945677106bb2c, type: 3}
       volume: 1
     - physicsMaterials:
@@ -6995,6 +6998,7 @@ MonoBehaviour:
       tags:
       - Enemy
       hitVFX: {fileID: 723128403654289039, guid: 0f9432862f1d90a41a71eaf6b185a751, type: 3}
+      soundType: 6
       hitSFX: {fileID: 8300000, guid: 89751fdc7aca61946b8f7adbbbcd2219, type: 3}
       volume: 1
     - physicsMaterials:
@@ -7002,6 +7006,7 @@ MonoBehaviour:
       tags:
       - Wood
       hitVFX: {fileID: 8103777959374963110, guid: ede03aa355c30b749b7147b85eaff706, type: 3}
+      soundType: 7
       hitSFX: {fileID: 8300000, guid: 3aec82f0738ac174bb8e01b596eac3f3, type: 3}
       volume: 1
   gunAiming:
@@ -7040,7 +7045,7 @@ AudioSource:
   m_GameObject: {fileID: 4692539212026885086}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -4299355644702141783, guid: e013d57cc4b06024486e685d721d7776, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

@@ -3,6 +3,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 
+public enum Binding
+{
+    MoveUp, MoveDown, MoveLeft, MoveRight, Sprint, Jump, Crouch, Shoot, Reload, Aim, Interact, ThrowGrenade, ThrowMolotov, PauseGame, PrimaryGun, SecondaryGun
+}
+
 public class GameInput : MonoBehaviour
 {
     public event Action OnJumpPressed;
@@ -20,11 +25,13 @@ public class GameInput : MonoBehaviour
 
     private PlayerInputSet inputSet;
     private PlayerInputSet.PlayerActions player;
+    private PlayerInputSet.UIActions ui;
 
     private void Awake()
     {
         inputSet = new PlayerInputSet();
         player = inputSet.Player;
+        ui = inputSet.UI;
     }
 
     private void OnEnable()
@@ -42,6 +49,9 @@ public class GameInput : MonoBehaviour
         player.Interaction.performed += OnInteractPerformed;
         player.Interaction.canceled += OnInteractCanceled;
         player.Throw.performed += OnThrowPerformed;
+        player.PauseGame.performed += OnPauseGamePerformed;
+
+        ui.ResumeGame.performed += OnResumeGamePerformed;
     }
 
     private void OnDisable()
@@ -59,10 +69,16 @@ public class GameInput : MonoBehaviour
         player.Interaction.performed -= OnInteractPerformed;
         player.Interaction.canceled -= OnInteractCanceled;
         player.Throw.performed -= OnThrowPerformed;
+        player.PauseGame.performed -= OnPauseGamePerformed;
+
+        ui.ResumeGame.performed += OnResumeGamePerformed;
     }
 
-    public void EnableInput() => inputSet.Enable();
-    public void DisableInput() => inputSet.Disable();
+    public void EnablePlayerInput() => inputSet.Player.Enable();
+    public void DisablePlayerInput() => inputSet.Player.Disable();
+    public void EnableUIInput() => inputSet.UI.Enable();
+    public void DisableUIInput() => inputSet.UI.Disable();
+
     public Vector2 GetMoveInputNormalized() => player.Movement.ReadValue<Vector2>();
     public Vector2 GetMouseInput() => player.Look.ReadValue<Vector2>();
 
@@ -76,6 +92,8 @@ public class GameInput : MonoBehaviour
     private void OnAimPerformed(InputAction.CallbackContext context) => OnAimPressed?.Invoke();
     private void OnInteractPerformed(InputAction.CallbackContext context) => OnInteractPressed?.Invoke();
     private void OnInteractCanceled(InputAction.CallbackContext context) => OnInteractReleased?.Invoke();
+    private void OnPauseGamePerformed(InputAction.CallbackContext context) => GameEvents.RaisePauseGameButtonPressed(true);
+    private void OnResumeGamePerformed(InputAction.CallbackContext context) => GameEvents.RaisePauseGameButtonPressed(false);
 
     private void OnSwitchPerformend(InputAction.CallbackContext context)
     {
@@ -110,6 +128,27 @@ public class GameInput : MonoBehaviour
         }
     }
 
-    public string InteractionBindingDisplay => player.Interaction.GetBindingDisplayString();
-    public string ReloadBindingDisplay => player.Reload.GetBindingDisplayString();
+    public string GetBindingDisplay(Binding binding)
+    {
+        return binding switch
+        {
+            Binding.MoveUp => player.Movement.bindings[1].ToDisplayString(),
+            Binding.MoveDown => player.Movement.bindings[2].ToDisplayString(),
+            Binding.MoveLeft => player.Movement.bindings[3].ToDisplayString(),
+            Binding.MoveRight => player.Movement.bindings[4].ToDisplayString(),
+            Binding.Sprint => player.Sprint.bindings[0].ToDisplayString(),
+            Binding.Jump => player.Jump.bindings[0].ToDisplayString(),
+            Binding.Crouch => player.Crouch.bindings[0].ToDisplayString(),
+            Binding.Shoot => player.Shoot.bindings[0].ToDisplayString(),
+            Binding.Reload => player.Reload.bindings[0].ToDisplayString(),
+            Binding.Aim => player.Aim.bindings[0].ToDisplayString(),
+            Binding.Interact => player.Interaction.bindings[0].ToDisplayString(),
+            Binding.ThrowGrenade => player.Throw.bindings[0].ToDisplayString(),
+            Binding.ThrowMolotov => player.Throw.bindings[1].ToDisplayString(),
+            Binding.PauseGame => player.PauseGame.bindings[0].ToDisplayString(),
+            Binding.PrimaryGun => player.SwitchGun.bindings[0].ToDisplayString(),
+            Binding.SecondaryGun => player.SwitchGun.bindings[1].ToDisplayString(),
+            _ => string.Empty,
+        };
+    }
 }

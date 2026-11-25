@@ -4,48 +4,55 @@ using UnityEngine;
 public class PlayerCamera
 {
     [Header("Mouse Settings")]
-    [SerializeField] private float mouseXSensitivity = 20f;
-    [SerializeField] private float mouseYSensitivity = 20f;
+    [SerializeField] private float maxSensitivity = 50f;
+    [SerializeField] private float minSensitivity = 5f;
+    [SerializeField] private float defaultSensitivity = 20f;
+    [SerializeField] private float mouseSensitivity = 20f;
     [SerializeField] private float angleClamp = 60f;
     [SerializeField] private float sniperAimSenMultiplier = .25f;
 
     private float originalMouseXSen;
-    private float originalMouseYSen;
     private float xRotation;
+
+    public float MaxSensitivity => maxSensitivity;
+    public float MinSensitivity => minSensitivity;
+    public float DefaultSensitivity => defaultSensitivity;
 
     public void Initialized()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
-
-        originalMouseXSen = mouseXSensitivity;
-        originalMouseYSen = mouseYSensitivity;
+        mouseSensitivity = defaultSensitivity;
+        originalMouseXSen = mouseSensitivity;
     }
 
     public void HandleSniperAiming(bool isSniperAiming)
     {
         if (isSniperAiming)
         {
-            mouseXSensitivity *= sniperAimSenMultiplier;
-            mouseYSensitivity *= sniperAimSenMultiplier;
+            mouseSensitivity *= sniperAimSenMultiplier;
+            mouseSensitivity = Mathf.Clamp(mouseSensitivity, minSensitivity, maxSensitivity);
         }
         else
-        {
-            mouseXSensitivity = originalMouseXSen;
-            mouseYSensitivity = originalMouseYSen;
-        }
+            mouseSensitivity = originalMouseXSen;
     }
 
-    public void HandleRotation(Transform playerTransform, Transform playerCamera, GameInput gameInput, Vector3 cameraRecoilRotation)
+    public void HandleRotation(Transform playerTransform, Transform mainCamera, GameInput gameInput, Vector3 cameraRecoilRotation)
     {
         Vector2 mouseInput = gameInput.GetMouseInput();
-        float mouseX = mouseInput.x * mouseXSensitivity * Time.deltaTime;
-        float mouseY = mouseInput.y * mouseYSensitivity * Time.deltaTime;
+        float mouseX = mouseInput.x * mouseSensitivity * Time.deltaTime;
+        float mouseY = mouseInput.y * mouseSensitivity * Time.deltaTime;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -angleClamp, angleClamp);
 
-        playerCamera.localRotation = Quaternion.Euler(xRotation + cameraRecoilRotation.x, cameraRecoilRotation.y, cameraRecoilRotation.z);
+        mainCamera.localRotation = Quaternion.Euler(xRotation + cameraRecoilRotation.x, cameraRecoilRotation.y, cameraRecoilRotation.z);
         playerTransform.Rotate(Vector3.up * mouseX);
     }
+
+    public void UpdateMouseSensitivity(float value)
+    {
+        mouseSensitivity = Mathf.Clamp(value, minSensitivity, maxSensitivity);
+        originalMouseXSen = mouseSensitivity;
+    }
+
+    public void ResetRotation() => xRotation = 0f;
 }

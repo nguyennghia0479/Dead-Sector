@@ -9,7 +9,6 @@ public class InteractionUI : MonoBehaviour
     [SerializeField] private TMP_Text interactKeyText;
     [SerializeField] private TMP_Text interactionText;
 
-    private string keyText;
     private IInteractable currentInteractable;
     private PlayerInteraction playerInteraction;
 
@@ -41,7 +40,7 @@ public class InteractionUI : MonoBehaviour
     public void Initialized(PlayerInteraction playerInteraction)
     {
         this.playerInteraction = playerInteraction;
-        interactKeyText.text = playerInteraction.GameInput.InteractionBindingDisplay;
+        interactKeyText.text = playerInteraction.GameInput.GetBindingDisplay(Binding.Interact);
         playerInteraction.OnInteractableChanged += HandleInteractableChanged;
     }
 

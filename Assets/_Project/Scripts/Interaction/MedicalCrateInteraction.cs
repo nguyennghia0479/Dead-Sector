@@ -6,6 +6,7 @@ public class MedicalCrateInteraction : Interaction
 
     public override void OnInteract(PlayerController player)
     {
+        base.OnInteract(player);
         GameEvents.RaiseMedicalUsed(medicalSO.HealPercent);
         Destroy(gameObject);
     }

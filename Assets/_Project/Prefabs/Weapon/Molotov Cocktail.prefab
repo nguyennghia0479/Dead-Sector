@@ -186,8 +186,6 @@ MonoBehaviour:
   delay: 3
   upwardsModifier: 0
   maxAmount: 4
-  explosionClip: {fileID: 8300000, guid: a7727c27165b48a46b07b880438326fc, type: 3}
-  bounceClip: {fileID: 8300000, guid: d4d32d2ba54a0924ba73e9a6474f36c9, type: 3}
   bounceCooldown: 0.15
   burnDamagePercentage: 0.25
 --- !u!54 &70516700373591160
@@ -249,7 +247,7 @@ AudioSource:
   m_GameObject: {fileID: 2414740593088275950}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: -4299355644702141783, guid: e013d57cc4b06024486e685d721d7776, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0

@@ -8,14 +8,27 @@ public class ThrowableController : MonoBehaviour
     private ThrowableData currentThrowable;
     private float throwForce;
     private Transform throwSpawn;
+    private PlayerController player;
 
-    public void Initialized(float throwForce, Transform throwSpawn)
+    public void Initialized(float throwForce, Transform throwSpawn, PlayerController player)
     {
         this.throwForce = throwForce;
         this.throwSpawn = throwSpawn;
+        this.player = player;
     }
 
-    public void PicupThrowable(Throwable throwable, int amount)
+    public void ResetThrowable()
+    {
+        foreach (var throwableData in throwableList)
+        {
+            throwableData.amount = 0;
+            UpdateThrowableAmountUI(throwableData);
+        }
+
+        throwableList.Clear();
+    }
+
+    public void PickupThrowable(Throwable throwable, int amount)
     {
         foreach (var throwableData in throwableList)
         {
@@ -65,8 +78,7 @@ public class ThrowableController : MonoBehaviour
 
         currentThrowable = null;
         gameObject.SetActive(false);
-        GunController gun = GetComponentInParent<PlayerController>().GunActivated;
-        gun.gameObject.SetActive(true);
+        player.GunAssigned.gameObject.SetActive(true);
     }
 
     private void UpdateThrowableAmountUI(ThrowableData throwableData)

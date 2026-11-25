@@ -1,3 +1,4 @@
+using GLTF.Schema.KHR_lights_punctual;
 using System.Collections;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ public class WeaponManager : MonoBehaviour
     [SerializeField] private GunController[] slots;
     [SerializeField] private float switchTime = .5f;
     [SerializeField] private GunController activeSlot;
+    [SerializeField] private GunController defaultWeapon;
 
     private PlayerController player;
     private GameInput gameInput;
@@ -23,17 +25,18 @@ public class WeaponManager : MonoBehaviour
 
     private void OnEnable()
     {
+        UIEvents.OnNewGameBtnClicked += HandleNewButtonClicked;
+        UIEvents.OnMainMenuBtnClicked += HandleMainMenuButtonClicked;
+
         gameInput.OnSlotSelected += HandleSlotSelected;
     }
 
     private void OnDisable()
     {
-        gameInput.OnSlotSelected -= HandleSlotSelected;
-    }
+        UIEvents.OnNewGameBtnClicked -= HandleNewButtonClicked;
+        UIEvents.OnMainMenuBtnClicked -= HandleMainMenuButtonClicked;
 
-    private void Start()
-    {
-        EquipItem(currentIndex);
+        gameInput.OnSlotSelected -= HandleSlotSelected;
     }
 
     public void PickupGun(GunController gun, Transform pickupTransform, int currentAmmos, int totalAmmos)
@@ -65,15 +68,18 @@ public class WeaponManager : MonoBehaviour
         if (dropGun != null)
         {
             dropGun.SetGunAiming(false);
-            GunInteraction newGunPickup = Instantiate(dropGun.Gun.PickupPrefab, gunTransform.position + Vector3.up, gunTransform.rotation);
-            newGunPickup.SetAmmos(dropGun.AmmoInMagazine, dropGun.CurrentReserveAmmo);
+            if (dropGun.AmmoInMagazine > 0 || dropGun.CurrentReserveAmmo > 0)
+            {
+                GunInteraction newGunPickup = Instantiate(dropGun.Gun.PickupPrefab, gunTransform.position + Vector3.up, gunTransform.rotation);
+                newGunPickup.SetAmmos(dropGun.AmmoInMagazine, dropGun.CurrentReserveAmmo);
+            }
             Destroy(dropGun.gameObject, .1f);
         }
     }
 
     public void PickupThrowable(Throwable throwable, int amount)
     {
-        player.ThrowableActivated.PicupThrowable(throwable, amount);
+        player.ThrowableActivated.PickupThrowable(throwable, amount);
     }
 
     private void EquipItem(int index)
@@ -114,6 +120,38 @@ public class WeaponManager : MonoBehaviour
         Sprite primaryIcon = primaryGun != null ? primaryGun.Gun.GunIcon : null;
         Sprite secondaryIcon = secondaryGun != null ? secondaryGun.Gun.GunIcon : null;
         GameEvents.RaiseWeaponSwitched(primaryIcon, secondaryIcon);
+    }
+
+    private void DestroyGuns()
+    {
+        for (int i = slots.Length - 1; i >= 0; i--)
+        {
+            if (slots[i] == null || slots[i].gameObject == null)
+            {
+                slots[i] = null;
+                continue;
+            }
+
+            GameObject gunToDestroy = slots[i].gameObject;
+            gunToDestroy.SetActive(false);
+            Destroy(gunToDestroy);
+            slots[i] = null;
+        }
+    }
+
+    private void HandleNewButtonClicked()
+    {
+        currentIndex = 0;
+        DestroyGuns();
+
+        GunController defaultGun = Instantiate(defaultWeapon, player.GunHolder);
+        slots[currentIndex] = defaultGun;
+        EquipItem(currentIndex);
+    }
+
+    private void HandleMainMenuButtonClicked()
+    {
+        DestroyGuns();
     }
 
     private void HandleSlotSelected(int index)

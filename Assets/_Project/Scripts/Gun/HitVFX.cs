@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class HitVFX : MonoBehaviour
 {
+    public SoundType SoundType;
+
     private PooledObject pooledObject;
   
     private void Awake()

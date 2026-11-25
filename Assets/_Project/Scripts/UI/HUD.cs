@@ -44,6 +44,8 @@ public class HUD : MonoBehaviour
 
     private void OnEnable()
     {
+        UIEvents.OnNewGameBtnClicked += HandleNewGameButtonClicked;
+
         GameEvents.OnWeaponSwitched += HandleWeaponSwitched;
         GameEvents.OnAmmoChanged += HandleAmmosChanged;
         GameEvents.OnHealthChanged += HandleHealthChanged;
@@ -54,6 +56,8 @@ public class HUD : MonoBehaviour
 
     private void OnDisable()
     {
+        UIEvents.OnNewGameBtnClicked -= HandleNewGameButtonClicked;
+
         GameEvents.OnWeaponSwitched -= HandleWeaponSwitched;
         GameEvents.OnAmmoChanged -= HandleAmmosChanged;
         GameEvents.OnHealthChanged -= HandleHealthChanged;
@@ -66,7 +70,13 @@ public class HUD : MonoBehaviour
     {
         currentHP = player.PlayerHealth.CurrentHP;
         hpThreshold = Mathf.CeilToInt(currentHP * hpThresholdPercentage);
-        reloadKeyText.text = player.GameInput.ReloadBindingDisplay;
+        reloadKeyText.text = player.GameInput.GetBindingDisplay(Binding.Reload);
+    }
+
+    private void HandleNewGameButtonClicked()
+    {
+        HideBloodBlur();
+        HideBloodEffect();
     }
 
     private void HandleWeaponSwitched(Sprite primaryGun, Sprite secondaryGun)
@@ -124,16 +134,8 @@ public class HUD : MonoBehaviour
     private void HandlePlayerHealed()
     {
         if (currentHP > hpThreshold && enableBloodBlur)
-        {
-            enableBloodBlur = false;
-            if (bloodBlurRoutine != null)
-                StopCoroutine(bloodBlurRoutine);
-            UpdateImageColorAlpha(bloodBlurImg, 0f);
-        }
-
-        if (bloodEffectRoutine != null)
-            StopCoroutine(bloodEffectRoutine);
-        UpdateImageColorAlpha(bloodEffectImg, 0f);
+            HideBloodBlur();
+        HideBloodEffect();
 
         if (healScreenRoutine != null)
             StopCoroutine(healScreenRoutine);
@@ -148,6 +150,21 @@ public class HUD : MonoBehaviour
             yield return ChangeAlphaRoutine(bloodBlurImg, alpha, alpha / 2f, bloodScreenDuration);
             yield return ChangeAlphaRoutine(bloodBlurImg, alpha / 2f, alpha, bloodScreenDuration);
         }
+    }
+
+    private void HideBloodBlur()
+    {
+        enableBloodBlur = false;
+        if (bloodBlurRoutine != null)
+            StopCoroutine(bloodBlurRoutine);
+        UpdateImageColorAlpha(bloodBlurImg, 0f);
+    }
+
+    private void HideBloodEffect()
+    {
+        if (bloodEffectRoutine != null)
+            StopCoroutine(bloodEffectRoutine);
+        UpdateImageColorAlpha(bloodEffectImg, 0f);
     }
 
     private IEnumerator ChangeAlphaRoutine(Image image, float startAlpha, float targetAlpha, float duration)

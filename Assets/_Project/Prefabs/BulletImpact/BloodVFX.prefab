@@ -2334,6 +2334,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a6643ecb1d2be33499830a77e0352bbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HitVFX
+  SoundType: 6
 --- !u!114 &5812457979466217062
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2346,5 +2347,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6536ccfef7ef6e1478b4a6be09b4aa4e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PooledObject
-  originalParent: {fileID: 0}
-  originalScale: {x: 0, y: 0, z: 0}

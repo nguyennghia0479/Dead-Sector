@@ -59,14 +59,7 @@ public class EnemyController : EntityController
         agent = GetComponent<NavMeshAgent>();
         rb = GetComponent<Rigidbody>();
         collider = GetComponentInChildren<Collider>();
-        GameObject playerObject = GameObject.FindWithTag("Player");
-        player = playerObject.GetComponent<PlayerController>();
-
         stateMachine = new();
-        IdleState = new EnemyIdleState(this, stateMachine, "idle");
-        WalkState = new EnemyWalkState(this, stateMachine, "walk");
-        ChaseState = new EnemyChaseState(this, stateMachine, "chase");
-        AttackState = new EnemyAttackState(this, stateMachine, "attack");
     }
 
     private void OnEnable()
@@ -79,16 +72,6 @@ public class EnemyController : EntityController
         enemyHealth.OnHit -= HandleHit;
     }
 
-    private void Start()
-    {
-        enemyCombat = GetComponentInChildren<EnemyCombat>();
-        enemyCombat.Initialized(attackDamage, playerLayer, this);
-
-        stateMachine.Initialized(IdleState);
-        enemyHealth.Initialzied(this);
-        Initialized(enemyHealth);
-    }
-
     private void Update()
     {
         if (!agent.enabled || !collider.enabled || enemyHealth.IsDeath) return;
@@ -97,6 +80,21 @@ public class EnemyController : EntityController
         HandleDistanceToPlayer();
         HandleKnockback();
         HandleBurnHit();
+    }
+
+    public void Initialized(PlayerController player)
+    {
+        this.player = player;
+        IdleState = new EnemyIdleState(this, stateMachine, "idle");
+        WalkState = new EnemyWalkState(this, stateMachine, "walk");
+        ChaseState = new EnemyChaseState(this, stateMachine, "chase");
+        AttackState = new EnemyAttackState(this, stateMachine, "attack");
+
+        enemyCombat = GetComponentInChildren<EnemyCombat>();
+        enemyCombat.Initialized(attackDamage, playerLayer, this);
+        stateMachine.Initialized(IdleState);
+        enemyHealth.Initialzied(this);
+        Initialized(enemyHealth);
     }
 
     public override void TakeGrenadeHit(int explosionDamage, float explosionForce, Vector3 explosionPosition, float explosionRadius, float upwardsModifier)
